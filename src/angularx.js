@@ -1,5 +1,6 @@
 angular.module('angularx', [])
     .directive('binSplitInRows', binSplitInRowsDirectiveFactory)
+    .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
     .directive('binGroupBy', binGroupByDirectiveFactory);
 
 function binSplitInRowsDirectiveFactory() {
@@ -19,6 +20,26 @@ function binSplitInRowsDirectiveFactory() {
 
         $scope.$watchCollection(attrs.binSplitInRows, function (newItems) {
             if (newItems) $scope.rows = splitInRows(newItems, attrs.columns);
+        });
+    }
+}
+
+function binSplitInColumnsDirectiveFactory() {
+    return function ($scope, el, attrs) {
+        function splitInColumns(items, columns) {
+            var cols = [];
+            for (var c = 0; c <= columns - 1; c++) {
+                var it = [];
+                for (var i = c; i <= items.length - 1; i += columns) {
+                    it.push(items[i]);
+                }
+                cols.push({id: c, items: it});
+            }
+            return cols;
+        }
+
+        $scope.$watchCollection(attrs.binSplitInColumns, function (newItems) {
+            if(newItems) $scope.columns = splitInColumns(newItems, $scope.$eval(attrs.columns));
         });
     }
 }
