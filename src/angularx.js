@@ -1,7 +1,8 @@
 angular.module('angularx', [])
     .directive('binSplitInRows', binSplitInRowsDirectiveFactory)
     .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
-    .directive('binGroupBy', binGroupByDirectiveFactory);
+    .directive('binGroupBy', binGroupByDirectiveFactory)
+    .directive('binSelectTextOnClick', binSelectTextOnClick);
 
 function binSplitInRowsDirectiveFactory() {
     return function ($scope, el, attrs) {
@@ -75,4 +76,15 @@ function binGroupByDirectiveFactory() {
             if (newItems) $scope.groups = group(newItems, attrs.binGroupBy);
         });
     }
+}
+
+function binSelectTextOnClick() {
+    return {
+        restrict:'A',
+        link:function($scope, el) {
+            el.on('click', function() {
+                this.select();
+            });
+        }
+    };
 }
