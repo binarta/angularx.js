@@ -1,3 +1,10 @@
+var $ = function () {
+    return {
+        scroll: function () {
+        }
+    }
+};
+
 describe('angularx', function () {
 
     beforeEach(module('angularx'));
@@ -173,19 +180,19 @@ describe('angularx', function () {
                 {id: 7, items: [8]}
             ]}
         ].forEach(function (value) {
-            describe('creates columns for collection', function () {
-                beforeEach(inject(function ($rootScope, $compile) {
-                    html = '<div bin-split-in-columns="collection" columns="' + value.columns + '"></div>';
-                    element = angular.element(html);
-                    $compile(element)(scope);
-                    scope.$digest();
-                }));
+                describe('creates columns for collection', function () {
+                    beforeEach(inject(function ($rootScope, $compile) {
+                        html = '<div bin-split-in-columns="collection" columns="' + value.columns + '"></div>';
+                        element = angular.element(html);
+                        $compile(element)(scope);
+                        scope.$digest();
+                    }));
 
-                it('given column count ' + value.columns, function () {
-                    expect(scope.columns).toEqual(value.expected);
+                    it('given column count ' + value.columns, function () {
+                        expect(scope.columns).toEqual(value.expected);
+                    });
                 });
             });
-        });
 
         it('when the collection is undefined', function () {
             scope.collection = undefined;
@@ -213,7 +220,11 @@ describe('angularx', function () {
 
         beforeEach(inject(function ($rootScope, $compile) {
             scope = $rootScope.$new();
-            scope.collection = [{field: 1}, {field: 2}, {field: 1}];
+            scope.collection = [
+                {field: 1},
+                {field: 2},
+                {field: 1}
+            ];
             html = '<div bin-group-by="field" on="collection"></div>';
             element = angular.element(html);
             $compile(element)(scope);
@@ -223,8 +234,13 @@ describe('angularx', function () {
             scope.$digest();
 
             expect(scope.groups).toEqual([
-                {items: [{field: 1}, {field: 1}], id: 0},
-                {items: [{field: 2}], id: 1}
+                {items: [
+                    {field: 1},
+                    {field: 1}
+                ], id: 0},
+                {items: [
+                    {field: 2}
+                ], id: 1}
             ]);
         });
 
@@ -240,10 +256,20 @@ describe('angularx', function () {
             scope.$digest();
 
             expect(scope.groups).toEqual([
-                {items: [{field: 1}, {field: 1}], id: 0},
-                {items: [{field: 2}], id: 1},
-                {items: [{field: 3}], id: 2}
+                {items: [
+                    {field: 1},
+                    {field: 1}
+                ], id: 0},
+                {items: [
+                    {field: 2}
+                ], id: 1},
+                {items: [
+                    {field: 3}
+                ], id: 2}
             ]);
         });
+    });
+
+    describe('end.of.page notification', function () {
     });
 });

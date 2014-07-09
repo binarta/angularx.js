@@ -1,8 +1,9 @@
-angular.module('angularx', [])
+angular.module('angularx', ['notifications'])
     .directive('binSplitInRows', binSplitInRowsDirectiveFactory)
     .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
     .directive('binGroupBy', binGroupByDirectiveFactory)
-    .directive('binSelectTextOnClick', binSelectTextOnClick);
+    .directive('binSelectTextOnClick', binSelectTextOnClick)
+    .run(['topicMessageDispatcher', EndOfPageListener]);
 
 function binSplitInRowsDirectiveFactory() {
     return function ($scope, el, attrs) {
@@ -87,4 +88,11 @@ function binSelectTextOnClick() {
             });
         }
     };
+}
+
+function EndOfPageListener(topicMessageDispatcher) {
+    $(window).scroll(function() {
+        if($(document).height() <= $(window).scrollTop() + $(window).height())
+            topicMessageDispatcher.fire('end.of.page', 'reached');
+    });
 }
