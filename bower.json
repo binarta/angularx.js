@@ -6,6 +6,7 @@
     "binarta.notifications.angular":"0.0.*"
   },
   "devDependencies": {
+    "jquery":"1.10.1",
     "angular-mocks": "1.2.5",
     "thk-notifications-mock":"0.0.*"
   },

@@ -3,6 +3,7 @@ angular.module('angularx', ['notifications'])
     .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
     .directive('binGroupBy', binGroupByDirectiveFactory)
     .directive('binSelectTextOnClick', binSelectTextOnClick)
+    .directive('binExposeBoxWidth', binExposeBoxWidth)
     .run(['topicMessageDispatcher', EndOfPageListener]);
 
 function binSplitInRowsDirectiveFactory() {
@@ -95,4 +96,13 @@ function EndOfPageListener(topicMessageDispatcher) {
         if($(document).height() <= $(window).scrollTop() + $(window).height())
             topicMessageDispatcher.fire('end.of.page', 'reached');
     });
+}
+
+function binExposeBoxWidth() {
+    return {
+        restrict:'A',
+        link:function($scope, el) {
+            $scope.boxWidth = el.width();
+        }
+    }
 }

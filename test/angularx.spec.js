@@ -270,6 +270,16 @@ describe('angularx', function () {
         });
     });
 
-    describe('end.of.page notification', function () {
+    describe('binExposeBoxWidth directive', function () {
+        beforeEach(inject(function ($rootScope, $compile) {
+            scope = $rootScope.$new();
+            html = '<div style="width: 100px;" bin-expose-box-width></div>';
+            element = angular.element(html);
+            $compile(element)(scope);
+        }));
+
+        it('test', function() {
+            expect(scope.boxWidth).toEqual(100);
+        });
     });
 });
