@@ -278,8 +278,33 @@ describe('angularx', function () {
             $compile(element)(scope);
         }));
 
-        it('test', function() {
+        it('test', function () {
             expect(scope.boxWidth).toEqual(100);
+        });
+    });
+
+    describe('cssLoader service', function () {
+        var loader, document;
+
+        beforeEach(inject(function ($document, cssLoader) {
+            $document.find('head').empty();
+            document = $document;
+            loader = cssLoader;
+        }));
+
+        it('add a stylesheet to the dom', function () {
+            loader.add('test.css');
+
+            expect(document.find('head').html()).toContain('link rel="stylesheet" type="text/css" href="test.css"');
+        });
+
+        it('avoid the same stylesheet to be added', function () {
+            loader.add('test.css');
+            loader.add('test.css');
+
+            var occurrences = document.find('head').html().split("test.css").length - 1;
+
+            expect(occurrences).toEqual(1);
         });
     });
 });

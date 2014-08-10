@@ -4,6 +4,7 @@ angular.module('angularx', ['notifications'])
     .directive('binGroupBy', binGroupByDirectiveFactory)
     .directive('binSelectTextOnClick', binSelectTextOnClick)
     .directive('binExposeBoxWidth', binExposeBoxWidth)
+    .service('cssLoader', ['$document', '$compile', CssLoaderService])
     .run(['topicMessageDispatcher', EndOfPageListener]);
 
 function binSplitInRowsDirectiveFactory() {
@@ -105,4 +106,17 @@ function binExposeBoxWidth() {
             $scope.boxWidth = el.width();
         }
     }
+}
+
+function CssLoaderService($document, $compile) {
+    var head = $document.find('head');
+    var stylesheets = [];
+    return {
+        add: function(href) {
+            if (stylesheets.indexOf(href) == -1) {
+                stylesheets.push(href);
+                head.append($compile('<link rel="stylesheet" type="text/css" href="' + href + '">')(stylesheets));
+            }
+        }
+    };
 }
