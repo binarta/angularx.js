@@ -283,19 +283,32 @@ describe('angularx', function () {
         });
     });
 
-    describe('cssLoader service', function () {
-        var loader, document;
+    describe('resourceLoader service', function () {
+        var loader, document, scope;
 
-        beforeEach(inject(function ($document, cssLoader) {
+        beforeEach(inject(function ($document, resourceLoader, $rootScope) {
             $document.find('head').empty();
             document = $document;
-            loader = cssLoader;
+            scope = $rootScope;
+            loader = resourceLoader;
         }));
+
+        it('service uses a new child scope', function () {
+            expect(scope.resources).toEqual([]);
+        });
 
         it('add a stylesheet to the dom', function () {
             loader.add('test.css');
 
-            expect(document.find('head').html()).toContain('link rel="stylesheet" type="text/css" href="test.css"');
+            expect(document.find('head').html()).toContain('<link rel="stylesheet" type="text/css" href="test.css" class="ng-scope">');
+            expect(scope.resources['test.css']).toBeDefined();
+        });
+
+        it('add a script to the dom', function () {
+            loader.add('/base/test/test.js');
+
+            expect(document.find('head').html()).toContain('<script src="/base/test/test.js" class="ng-scope"></script>');
+            expect(scope.resources['/base/test/test.js']).toBeDefined();
         });
 
         it('avoid the same stylesheet to be added', function () {
@@ -305,6 +318,31 @@ describe('angularx', function () {
             var occurrences = document.find('head').html().split("test.css").length - 1;
 
             expect(occurrences).toEqual(1);
+        });
+
+        it('avoid the same script to be added', function () {
+            loader.add('/base/test/test.js');
+            loader.add('/base/test/test.js');
+
+            var occurrences = document.find('head').html().split("/base/test/test.js").length - 1;
+
+            expect(occurrences).toEqual(1);
+        });
+
+        it('remove a stylesheet', function () {
+            loader.add('test.css');
+            loader.remove('test.css');
+
+            expect(document.find('head').html()).not.toContain('<link rel="stylesheet" type="text/css" href="test.css" class="ng-scope">');
+            expect(scope.resources['test.css']).toBeUndefined();
+        });
+
+        it('remove a script', function () {
+            loader.add('/base/test/test.js');
+            loader.remove('/base/test/test.js');
+
+            expect(document.find('head').html()).not.toContain('<script src="/base/test/test.js" class="ng-scope"></script>');
+            expect(scope.resources['/base/test/test.js']).toBeUndefined();
         });
     });
 });

@@ -4,7 +4,7 @@ angular.module('angularx', ['notifications'])
     .directive('binGroupBy', binGroupByDirectiveFactory)
     .directive('binSelectTextOnClick', binSelectTextOnClick)
     .directive('binExposeBoxWidth', binExposeBoxWidth)
-    .service('cssLoader', ['$document', '$compile', CssLoaderService])
+    .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .run(['topicMessageDispatcher', EndOfPageListener]);
 
 function binSplitInRowsDirectiveFactory() {
@@ -108,15 +108,41 @@ function binExposeBoxWidth() {
     }
 }
 
-function CssLoaderService($document, $compile) {
+function ResourceLoaderService($rootScope, $document, $compile) {
     var head = $document.find('head');
-    var stylesheets = [];
+    var scope = $rootScope;
+    scope.resources = [];
+
+    function addResourceToDom(href) {
+        var element = getElement(href);
+        scope.resources[href] = element;
+        head.append(element);
+    }
+
+    function getElement(href) {
+        if(href.slice(-4) == '.css') return getStylesheetElement(href);
+        else if(href.slice(-3) == '.js') return getScriptElement(href);
+    }
+
+    function getStylesheetElement(href) {
+        return $compile('<link rel="stylesheet" type="text/css" href="' + href + '">')(scope);
+    }
+
+    function getScriptElement(href) {
+        return $compile('<script src="' + href + '">')(scope);
+    }
+
+    function removeResourceFromDom(href) {
+        scope.resources[href].remove();
+        delete scope.resources[href];
+    }
+
     return {
         add: function(href) {
-            if (stylesheets.indexOf(href) == -1) {
-                stylesheets.push(href);
-                head.append($compile('<link rel="stylesheet" type="text/css" href="' + href + '">')(stylesheets));
-            }
+            if (!scope.resources[href]) addResourceToDom(href);
+        },
+        remove: function (href) {
+            if (scope.resources[href]) removeResourceFromDom(href);
         }
     };
 }
