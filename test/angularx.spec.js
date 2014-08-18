@@ -5,6 +5,23 @@ var $ = function () {
     }
 };
 
+angular.module('config', [])
+    .factory('config', function () {
+        return {};
+    });
+
+angular.module('checkpoint', [])
+    .factory('activeUserHasPermission', ['activeUserHasPermissionHelper', function (activeUserHasPermissionHelper) {
+        return function(response, permission) {
+            if (permission == 'unauthorized') response.no();
+            if (permission == 'authorized') response.yes();
+            activeUserHasPermissionHelper.scope = response.scope;
+        };
+    }])
+    .factory('activeUserHasPermissionHelper', function () {
+        return {};
+    });
+
 describe('angularx', function () {
 
     beforeEach(module('angularx'));
@@ -271,6 +288,8 @@ describe('angularx', function () {
     });
 
     describe('binExposeBoxWidth directive', function () {
+        var scope, html, element;
+
         beforeEach(inject(function ($rootScope, $compile) {
             scope = $rootScope.$new();
             html = '<div style="width: 100px;" bin-expose-box-width></div>';
@@ -343,6 +362,87 @@ describe('angularx', function () {
 
             expect(document.find('head').html()).not.toContain('<script src="/base/test/test.js" class="ng-scope"></script>');
             expect(scope.resources['/base/test/test.js']).toBeUndefined();
+        });
+    });
+
+    describe('binTemplate service', function () {
+        var binTemplate, scope, config;
+
+        beforeEach(inject(function (_binTemplate_, $rootScope, _config_) {
+            binTemplate = _binTemplate_;
+            scope = $rootScope.$new();
+            config = _config_;
+        }));
+
+        describe('when setting the templateUrl to scope', function () {
+            it('default template url', function () {
+                binTemplate.setTemplateUrl({
+                    scope: scope,
+                    module: 'test',
+                    name: 'test.html'
+                });
+
+                expect(scope.templateUrl).toEqual('bower_components/binarta.test.angular/template/test.html');
+            });
+
+            it('template url with specific styling', function () {
+                config.styling = 'styling';
+
+                binTemplate.setTemplateUrl({
+                    scope: scope,
+                    module: 'test',
+                    name: 'test.html'
+                });
+
+                expect(scope.templateUrl).toEqual('bower_components/binarta.test.angular/template/styling/test.html');
+            });
+
+            it('template url with specific components dir', function () {
+                config.componentsDir = 'components';
+
+                binTemplate.setTemplateUrl({
+                    scope: scope,
+                    module: 'test',
+                    name: 'test.html'
+                });
+
+                expect(scope.templateUrl).toEqual('components/binarta.test.angular/template/test.html');
+            });
+
+            describe('when given a permission', function () {
+                it('scope is given to authorize usecase', inject(function (activeUserHasPermissionHelper) {
+                    binTemplate.setTemplateUrl({
+                        scope: scope,
+                        module: 'test',
+                        name: 'test.html',
+                        permission: 'test'
+                    });
+
+                    expect(activeUserHasPermissionHelper.scope).toEqual(scope);
+                }));
+
+                it('unauthorized', function () {
+                    binTemplate.setTemplateUrl({
+                        scope: scope,
+                        module: 'test',
+                        name: 'test.html',
+                        permission: 'unauthorized'
+                    });
+
+                    expect(scope.templateUrl).toBeUndefined();
+                });
+
+                it('authorized', function () {
+                    binTemplate.setTemplateUrl({
+                        scope: scope,
+                        module: 'test',
+                        name: 'test.html',
+                        permission: 'authorized'
+                    });
+
+                    expect(scope.templateUrl).toEqual('bower_components/binarta.test.angular/template/test.html');
+                });
+            });
         });
     });
 });

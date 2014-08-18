@@ -1,10 +1,11 @@
-angular.module('angularx', ['notifications'])
+angular.module('angularx', ['notifications', 'config', 'checkpoint'])
     .directive('binSplitInRows', binSplitInRowsDirectiveFactory)
     .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
     .directive('binGroupBy', binGroupByDirectiveFactory)
     .directive('binSelectTextOnClick', binSelectTextOnClick)
     .directive('binExposeBoxWidth', binExposeBoxWidth)
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
+    .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
     .run(['topicMessageDispatcher', EndOfPageListener]);
 
 function binSplitInRowsDirectiveFactory() {
@@ -143,6 +144,32 @@ function ResourceLoaderService($rootScope, $document, $compile) {
         },
         remove: function (href) {
             if (scope.resources[href]) removeResourceFromDom(href);
+        }
+    };
+}
+
+function BinTemplateService(config, activeUserHasPermission) {
+    this.setTemplateUrl = function (args) {
+        var scope = args.scope;
+
+        function setTemplateUrlToScope() {
+            var componentsDir = config.componentsDir || 'bower_components';
+            var styling = config.styling ? config.styling + '/' : '';
+            scope.templateUrl =  componentsDir + '/binarta.' + args.module + '.angular/template/' + styling + args.name;
+        }
+
+        if(args.permission) {
+            activeUserHasPermission({
+                yes: function () {
+                    setTemplateUrlToScope();
+                },
+                no: function () {
+                    delete scope.templateUrl;
+                },
+                scope: args.scope
+            }, args.permission);
+        } else {
+            setTemplateUrlToScope();
         }
     };
 }
