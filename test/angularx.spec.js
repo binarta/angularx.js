@@ -288,17 +288,21 @@ describe('angularx', function () {
     });
 
     describe('binExposeBoxWidth directive', function () {
-        var scope, html, element;
+        var scope, $rootScope;
 
-        beforeEach(inject(function ($rootScope, $compile) {
-            scope = $rootScope.$new();
-            html = '<div style="width: 100px;" bin-expose-box-width></div>';
-            element = angular.element(html);
-            $compile(element)(scope);
+        beforeEach(inject(function (_$rootScope_, $compile) {
+            var element = angular.element('<div style="width: 100px;" bin-expose-box-width></div>');
+            $rootScope = _$rootScope_;
+            $compile(element)($rootScope);
+            scope = element.scope();
         }));
 
         it('test', function () {
             expect(scope.boxWidth).toEqual(100);
+        });
+
+        it('uses child scope', function () {
+            expect(scope.$parent).toEqual($rootScope);
         });
     });
 

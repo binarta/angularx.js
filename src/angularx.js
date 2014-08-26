@@ -102,6 +102,7 @@ function EndOfPageListener(topicMessageDispatcher) {
 
 function binExposeBoxWidth() {
     return {
+        scope: true,
         restrict:'A',
         link:function($scope, el) {
             $scope.boxWidth = el.width();
