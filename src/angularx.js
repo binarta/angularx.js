@@ -4,6 +4,7 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint'])
     .directive('binGroupBy', binGroupByDirectiveFactory)
     .directive('binSelectTextOnClick', binSelectTextOnClick)
     .directive('binExposeBoxWidth', binExposeBoxWidth)
+    .directive('binToggle', binToggle)
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
     .run(['topicMessageDispatcher', EndOfPageListener]);
@@ -106,6 +107,21 @@ function binExposeBoxWidth() {
         restrict:'A',
         link:function($scope, el) {
             $scope.boxWidth = el.width();
+        }
+    }
+}
+
+function binToggle() {
+    return {
+        restrict:'A',
+        scope:true,
+        link:function($scope) {
+            $scope.toggleDisabled = true;
+            $scope.toggleEnabled = false;
+            $scope.toggle = function() {
+                $scope.toggleDisabled = !$scope.toggleDisabled;
+                $scope.toggleEnabled = !$scope.toggleEnabled;
+            }
         }
     }
 }

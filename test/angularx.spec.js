@@ -449,4 +449,43 @@ describe('angularx', function () {
             });
         });
     });
+
+    describe('binToggle directive', function() {
+        var $scope;
+
+        describe('when linked without arguments', function() {
+            beforeEach(inject(function ($rootScope, $compile) {
+                var element = angular.element('<div bin-toggle></div>');
+                $compile(element)($rootScope);
+                $scope = element.scope();
+            }));
+
+            it('then toggle starts out disabled', function() {
+                expect($scope.toggleDisabled).toEqual(true);
+                expect($scope.toggleEnabled).toEqual(false);
+            });
+
+            describe('and calling toggle', function() {
+                beforeEach(function() {
+                    $scope.toggle();
+                });
+
+                it('then toggle is enabled', function() {
+                    expect($scope.toggleDisabled).toEqual(false);
+                    expect($scope.toggleEnabled).toEqual(true);
+                });
+
+                describe('and calling toggle again', function() {
+                    beforeEach(function() {
+                        $scope.toggle();
+                    });
+
+                    it('then toggle is disabled again', function() {
+                        expect($scope.toggleDisabled).toEqual(true);
+                        expect($scope.toggleEnabled).toEqual(false);
+                    });
+                });
+            });
+        });
+    });
 });
