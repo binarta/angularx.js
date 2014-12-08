@@ -12,7 +12,7 @@ angular.module('config', [])
 
 angular.module('checkpoint', [])
     .factory('activeUserHasPermission', ['activeUserHasPermissionHelper', function (activeUserHasPermissionHelper) {
-        return function(response, permission) {
+        return function (response, permission) {
             if (permission == 'unauthorized') response.no();
             if (permission == 'authorized') response.yes();
             activeUserHasPermissionHelper.scope = response.scope;
@@ -39,7 +39,8 @@ describe('angularx', function () {
 
         [
             {columns: 0, expected: []},
-            {columns: 1, expected: [
+            {
+                columns: 1, expected: [
                 {id: 0, items: [1]},
                 {id: 1, items: [2]},
                 {id: 2, items: [3]},
@@ -50,48 +51,67 @@ describe('angularx', function () {
                 {id: 7, items: [8]},
                 {id: 8, items: [9]},
                 {id: 9, items: [10]}
-            ]},
-            {columns: 2, expected: [
+            ]
+            },
+            {
+                columns: 2, expected: [
                 {id: 0, items: [1, 2]},
                 {id: 1, items: [3, 4]},
                 {id: 2, items: [5, 6]},
                 {id: 3, items: [7, 8]},
                 {id: 4, items: [9, 10]}
-            ]},
-            {columns: 3, expected: [
+            ]
+            },
+            {
+                columns: 3, expected: [
                 {id: 0, items: [1, 2, 3]},
                 {id: 1, items: [4, 5, 6]},
                 {id: 2, items: [7, 8, 9]},
                 {id: 3, items: [10]}
-            ]},
-            {columns: 4, expected: [
+            ]
+            },
+            {
+                columns: 4, expected: [
                 {id: 0, items: [1, 2, 3, 4]},
                 {id: 1, items: [5, 6, 7, 8]},
                 {id: 2, items: [9, 10]}
-            ]},
-            {columns: 5, expected: [
+            ]
+            },
+            {
+                columns: 5, expected: [
                 {id: 0, items: [1, 2, 3, 4, 5]},
                 {id: 1, items: [6, 7, 8, 9, 10]}
-            ]},
-            {columns: 6, expected: [
+            ]
+            },
+            {
+                columns: 6, expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6]},
                 {id: 1, items: [7, 8, 9, 10]}
-            ]},
-            {columns: 7, expected: [
+            ]
+            },
+            {
+                columns: 7, expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6, 7]},
                 {id: 1, items: [8, 9, 10]}
-            ]},
-            {columns: 8, expected: [
+            ]
+            },
+            {
+                columns: 8, expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6, 7, 8]},
                 {id: 1, items: [9, 10]}
-            ]},
-            {columns: 9, expected: [
+            ]
+            },
+            {
+                columns: 9, expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6, 7, 8, 9]},
                 {id: 1, items: [10]}
-            ]},
-            {columns: 10, expected: [
+            ]
+            },
+            {
+                columns: 10, expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-            ]}
+            ]
+            }
         ].forEach(function (value) {
                 describe('creates rows for collection', function () {
                     beforeEach(inject(function ($rootScope, $compile) {
@@ -144,40 +164,53 @@ describe('angularx', function () {
 
         [
             {columns: 0, expected: []},
-            {columns: 1, expected: [
+            {
+                columns: 1, expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-            ]},
-            {columns: 2, expected: [
+            ]
+            },
+            {
+                columns: 2, expected: [
                 {id: 0, items: [1, 3, 5, 7, 9]},
                 {id: 1, items: [2, 4, 6, 8, 10]}
-            ]},
-            {columns: 3, expected: [
+            ]
+            },
+            {
+                columns: 3, expected: [
                 {id: 0, items: [1, 4, 7, 10]},
                 {id: 1, items: [2, 5, 8]},
                 {id: 2, items: [3, 6, 9]}
-            ]},
-            {columns: 4, expected: [
+            ]
+            },
+            {
+                columns: 4, expected: [
                 {id: 0, items: [1, 5, 9]},
                 {id: 1, items: [2, 6, 10]},
                 {id: 2, items: [3, 7]},
                 {id: 3, items: [4, 8]}
-            ]},
-            {columns: 5, expected: [
+            ]
+            },
+            {
+                columns: 5, expected: [
                 {id: 0, items: [1, 6]},
                 {id: 1, items: [2, 7]},
                 {id: 2, items: [3, 8]},
                 {id: 3, items: [4, 9]},
                 {id: 4, items: [5, 10]}
-            ]},
-            {columns: 6, expected: [
+            ]
+            },
+            {
+                columns: 6, expected: [
                 {id: 0, items: [1, 7]},
                 {id: 1, items: [2, 8]},
                 {id: 2, items: [3, 9]},
                 {id: 3, items: [4, 10]},
                 {id: 4, items: [5]},
                 {id: 5, items: [6]}
-            ]},
-            {columns: 7, expected: [
+            ]
+            },
+            {
+                columns: 7, expected: [
                 {id: 0, items: [1, 8]},
                 {id: 1, items: [2, 9]},
                 {id: 2, items: [3, 10]},
@@ -185,8 +218,10 @@ describe('angularx', function () {
                 {id: 4, items: [5]},
                 {id: 5, items: [6]},
                 {id: 6, items: [7]}
-            ]},
-            {columns: 8, expected: [
+            ]
+            },
+            {
+                columns: 8, expected: [
                 {id: 0, items: [1, 9]},
                 {id: 1, items: [2, 10]},
                 {id: 2, items: [3]},
@@ -195,7 +230,8 @@ describe('angularx', function () {
                 {id: 5, items: [6]},
                 {id: 6, items: [7]},
                 {id: 7, items: [8]}
-            ]}
+            ]
+            }
         ].forEach(function (value) {
                 describe('creates columns for collection', function () {
                     beforeEach(inject(function ($rootScope, $compile) {
@@ -251,13 +287,17 @@ describe('angularx', function () {
             scope.$digest();
 
             expect(scope.groups).toEqual([
-                {items: [
-                    {field: 1},
-                    {field: 1}
-                ], id: 0},
-                {items: [
-                    {field: 2}
-                ], id: 1}
+                {
+                    items: [
+                        {field: 1},
+                        {field: 1}
+                    ], id: 0
+                },
+                {
+                    items: [
+                        {field: 2}
+                    ], id: 1
+                }
             ]);
         });
 
@@ -273,16 +313,22 @@ describe('angularx', function () {
             scope.$digest();
 
             expect(scope.groups).toEqual([
-                {items: [
-                    {field: 1},
-                    {field: 1}
-                ], id: 0},
-                {items: [
-                    {field: 2}
-                ], id: 1},
-                {items: [
-                    {field: 3}
-                ], id: 2}
+                {
+                    items: [
+                        {field: 1},
+                        {field: 1}
+                    ], id: 0
+                },
+                {
+                    items: [
+                        {field: 2}
+                    ], id: 1
+                },
+                {
+                    items: [
+                        {field: 3}
+                    ], id: 2
+                }
             ]);
         });
     });
@@ -450,40 +496,139 @@ describe('angularx', function () {
         });
     });
 
-    describe('binToggle directive', function() {
+    describe('binToggle directive', function () {
         var $scope;
 
-        describe('when linked without arguments', function() {
+        describe('when linked without arguments', function () {
             beforeEach(inject(function ($rootScope, $compile) {
                 var element = angular.element('<div bin-toggle></div>');
                 $compile(element)($rootScope);
                 $scope = element.scope();
             }));
 
-            it('then toggle starts out disabled', function() {
+            it('then toggle starts out disabled', function () {
                 expect($scope.toggleDisabled).toEqual(true);
                 expect($scope.toggleEnabled).toEqual(false);
             });
 
-            describe('and calling toggle', function() {
-                beforeEach(function() {
+            describe('and calling toggle', function () {
+                beforeEach(function () {
                     $scope.toggle();
                 });
 
-                it('then toggle is enabled', function() {
+                it('then toggle is enabled', function () {
                     expect($scope.toggleDisabled).toEqual(false);
                     expect($scope.toggleEnabled).toEqual(true);
                 });
 
-                describe('and calling toggle again', function() {
-                    beforeEach(function() {
+                describe('and calling toggle again', function () {
+                    beforeEach(function () {
                         $scope.toggle();
                     });
 
-                    it('then toggle is disabled again', function() {
+                    it('then toggle is disabled again', function () {
                         expect($scope.toggleDisabled).toEqual(true);
                         expect($scope.toggleEnabled).toEqual(false);
                     });
+                });
+            });
+        });
+    });
+
+    describe('predicated barrier', function () {
+        var barrier, success;
+        var args;
+
+        beforeEach(inject(function (predicatedBarrier) {
+            barrier = predicatedBarrier;
+            success = jasmine.createSpy('successHandler');
+            args = {};
+        }));
+
+        function execute() {
+            return barrier(args);
+        }
+
+        it('when no predicate then auto complete', inject(function ($rootScope) {
+            execute().then(success);
+            $rootScope.$apply();
+            expect(success.calls.length).toEqual(1);
+        }));
+
+        describe('given predicate', function () {
+            var predicate;
+
+            beforeEach(function () {
+                predicate = jasmine.createSpy('predicateHandler');
+                args.predicate = predicate;
+            });
+
+            function testPredicateFor(args) {
+                return inject(function ($rootScope) {
+                    predicate.andReturn(args.resolvesTo);
+                    execute().then(success);
+                    $rootScope.$apply();
+                    expect(success.calls.length).toEqual(args.resolvesTo ? 1 : 0);
+                })
+            }
+
+            it('when false then prevent success handler execution', testPredicateFor({resolvesTo: false}));
+
+            it('when true execute success handler', testPredicateFor({resolvesTo: true}));
+
+            describe('and rejection handler', function () {
+                var rejected;
+
+                beforeEach(function () {
+                    rejected = jasmine.createSpy('rejectionHandler');
+                });
+
+                it('when false execute rejection handler', inject(function ($rootScope) {
+                    predicate.andReturn(false);
+                    execute().then(success, rejected);
+                    $rootScope.$apply();
+                    expect(rejected.calls.length).toEqual(1);
+                    expect(rejected.calls[0].args[0]).toEqual('timeout');
+                }));
+
+                describe('and timeout', function() {
+                    var count = 10;
+                    var duration = 1000;
+                    var now;
+
+                    beforeEach(function() {
+                        now = new Date();
+                        args.timeout = count * duration;
+                        args.now = now;
+                    });
+
+                    it('then retries until timeout reached', inject(function($rootScope, $timeout) {
+                        execute();
+                        $timeout.flush();
+                        expect(predicate.calls.length).toEqual(2);
+                        now.setTime(now.getTime() + count * duration);
+                        $timeout.flush();
+                        expect(predicate.calls.length).toEqual(3);
+                        now.setTime(now.getTime() + 1);
+                        $timeout.flush();
+                        expect(predicate.calls.length).toEqual(3);
+                    }));
+
+                    it('when timeout reached then execute rejection handler', inject(function($timeout) {
+                        execute().then(success, rejected);
+                        now.setTime(now.getTime() + count * duration);
+                        now.setTime(now.getTime() + 1);
+                        $timeout.flush();
+                        expect(rejected.calls.length).toEqual(1);
+                        expect(rejected.calls[0].args[0]).toEqual('timeout');
+                    }));
+
+                    it('when true before timeout reached then execute success handler', inject(function($timeout) {
+                        execute().then(success, rejected);
+                        predicate.andReturn(true);
+                        $timeout.flush();
+                        expect(success.calls.length).toEqual(1);
+                    }));
                 });
             });
         });

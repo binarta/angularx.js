@@ -7,6 +7,7 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint'])
     .directive('binToggle', binToggle)
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
+    .factory('predicatedBarrier', ['$q', '$timeout', PredicatedBarrierFactory])
     .run(['topicMessageDispatcher', EndOfPageListener]);
 
 function binSplitInRowsDirectiveFactory() {
@@ -45,7 +46,7 @@ function binSplitInColumnsDirectiveFactory() {
         }
 
         $scope.$watchCollection(attrs.binSplitInColumns, function (newItems) {
-            if(newItems) $scope.columns = splitInColumns(newItems, $scope.$eval(attrs.columns));
+            if (newItems) $scope.columns = splitInColumns(newItems, $scope.$eval(attrs.columns));
         });
     }
 }
@@ -64,7 +65,7 @@ function binGroupByDirectiveFactory() {
         function getUniqueFilters(source, filterKey) {
             var filters = [];
             source.forEach(function (el) {
-                if(filters.indexOf(el[filterKey]) == -1) filters.push(el[filterKey]);
+                if (filters.indexOf(el[filterKey]) == -1) filters.push(el[filterKey]);
             });
             return filters
         }
@@ -72,7 +73,7 @@ function binGroupByDirectiveFactory() {
         function getItemsByFilter(source, filterKey, filterValue) {
             var items = [];
             source.forEach(function (item) {
-                if(filterValue == item[filterKey]) items.push(item);
+                if (filterValue == item[filterKey]) items.push(item);
             });
             return items;
         }
@@ -85,9 +86,9 @@ function binGroupByDirectiveFactory() {
 
 function binSelectTextOnClick() {
     return {
-        restrict:'A',
-        link:function($scope, el) {
-            el.on('click', function() {
+        restrict: 'A',
+        link: function ($scope, el) {
+            el.on('click', function () {
                 this.select();
             });
         }
@@ -95,8 +96,8 @@ function binSelectTextOnClick() {
 }
 
 function EndOfPageListener(topicMessageDispatcher) {
-    $(window).scroll(function() {
-        if($(document).height() <= $(window).scrollTop() + $(window).height())
+    $(window).scroll(function () {
+        if ($(document).height() <= $(window).scrollTop() + $(window).height())
             topicMessageDispatcher.fire('end.of.page', 'reached');
     });
 }
@@ -104,8 +105,8 @@ function EndOfPageListener(topicMessageDispatcher) {
 function binExposeBoxWidth() {
     return {
         scope: true,
-        restrict:'A',
-        link:function($scope, el) {
+        restrict: 'A',
+        link: function ($scope, el) {
             $scope.boxWidth = el.width();
         }
     }
@@ -113,12 +114,12 @@ function binExposeBoxWidth() {
 
 function binToggle() {
     return {
-        restrict:'A',
-        scope:true,
-        link:function($scope) {
+        restrict: 'A',
+        scope: true,
+        link: function ($scope) {
             $scope.toggleDisabled = true;
             $scope.toggleEnabled = false;
-            $scope.toggle = function() {
+            $scope.toggle = function () {
                 $scope.toggleDisabled = !$scope.toggleDisabled;
                 $scope.toggleEnabled = !$scope.toggleEnabled;
             }
@@ -138,8 +139,8 @@ function ResourceLoaderService($rootScope, $document, $compile) {
     }
 
     function getElement(href) {
-        if(href.slice(-4) == '.css') return getStylesheetElement(href);
-        else if(href.slice(-3) == '.js') return getScriptElement(href);
+        if (href.slice(-4) == '.css') return getStylesheetElement(href);
+        else if (href.slice(-3) == '.js') return getScriptElement(href);
     }
 
     function getStylesheetElement(href) {
@@ -156,7 +157,7 @@ function ResourceLoaderService($rootScope, $document, $compile) {
     }
 
     return {
-        add: function(href) {
+        add: function (href) {
             if (!scope.resources[href]) addResourceToDom(href);
         },
         remove: function (href) {
@@ -172,10 +173,10 @@ function BinTemplateService(config, activeUserHasPermission) {
         function setTemplateUrlToScope() {
             var componentsDir = config.componentsDir || 'bower_components';
             var styling = config.styling ? config.styling + '/' : '';
-            scope.templateUrl =  componentsDir + '/binarta.' + args.module + '.angular/template/' + styling + args.name;
+            scope.templateUrl = componentsDir + '/binarta.' + args.module + '.angular/template/' + styling + args.name;
         }
 
-        if(args.permission) {
+        if (args.permission) {
             activeUserHasPermission({
                 yes: function () {
                     setTemplateUrlToScope();
@@ -189,4 +190,35 @@ function BinTemplateService(config, activeUserHasPermission) {
             setTemplateUrlToScope();
         }
     };
+}
+
+function PredicatedBarrierFactory($q, $timeout) {
+    var duration = 1000;
+
+    function waitFor(args) {
+        if (args.timeout != undefined && args.now.getTime() > args.timeout) args.deferred.reject('timeout');
+        else {
+            if (args.predicate()) args.deferred.resolve();
+            else {
+                if (args.timeout != undefined)
+                    $timeout(function () {
+                        waitFor(args);
+                    }, duration);
+                else args.deferred.reject('timeout')
+            }
+        }
+    }
+
+    return function (args) {
+        var d = $q.defer();
+        var now = args.now || new Date();
+        if (args.predicate) waitFor({
+            predicate: args.predicate,
+            deferred: d,
+            now: now,
+            timeout: args.timeout ? now.getTime() + args.timeout : undefined
+        });
+        else d.resolve();
+        return d.promise;
+    }
 }
