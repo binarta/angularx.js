@@ -633,4 +633,51 @@ describe('angularx', function () {
             });
         });
     });
+
+    describe('binBack', function() {
+        var evt, cb;
+        var sut;
+        var element = {
+            on: function(_evt, _cb) {
+                evt = _evt;
+                cb = _cb;
+            }
+        };
+        var path = 'P';
+        var window = {
+            history: {
+                back: function() {
+                    path = 'B';
+                }
+            }
+        };
+
+        beforeEach(function() {
+            sut = BinBackDirectiveFactory(window);
+        });
+
+        it('is exposed as class and attribute', function() {
+            expect(sut.restrict).toEqual('CA');
+        });
+
+        describe('upon link', function() {
+            beforeEach(function() {
+                sut.link({}, element);
+            });
+
+            it('on click event is registered', function() {
+                expect(evt).toEqual('click');
+            });
+
+            describe('and event is fired', function() {
+                beforeEach(function() {
+                    cb();
+                });
+
+                it('window history goes back one iteration', function() {
+                    expect(path).toEqual('B');
+                })
+            });
+        });
+    });
 });

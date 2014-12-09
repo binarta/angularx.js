@@ -5,6 +5,7 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint'])
     .directive('binSelectTextOnClick', binSelectTextOnClick)
     .directive('binExposeBoxWidth', binExposeBoxWidth)
     .directive('binToggle', binToggle)
+    .directive('binBack', ['$window', BinBackDirectiveFactory])
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
     .factory('predicatedBarrier', ['$q', '$timeout', PredicatedBarrierFactory])
@@ -220,5 +221,16 @@ function PredicatedBarrierFactory($q, $timeout) {
         });
         else d.resolve();
         return d.promise;
+    }
+}
+
+function BinBackDirectiveFactory($window) {
+    return {
+        restrict: 'CA',
+        link: function(scope, element) {
+            element.on('click', function() {
+                $window.history.back();
+            });
+        }
     }
 }
