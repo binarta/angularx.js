@@ -199,14 +199,21 @@ function PredicatedBarrierFactory($q, $timeout) {
     function waitFor(args) {
         if (args.timeout != undefined && args.now.getTime() > args.timeout) args.deferred.reject('timeout');
         else {
-            if (args.predicate()) args.deferred.resolve();
-            else {
+            args.predicate().then(args.deferred.resolve, function() {
                 if (args.timeout != undefined)
                     $timeout(function () {
                         waitFor(args);
                     }, duration);
                 else args.deferred.reject('timeout')
-            }
+            });
+            //if (args.predicate()) args.deferred.resolve();
+            //else {
+            //    if (args.timeout != undefined)
+            //        $timeout(function () {
+            //            waitFor(args);
+            //        }, duration);
+            //    else args.deferred.reject('timeout')
+            //}
         }
     }
 

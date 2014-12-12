@@ -556,16 +556,22 @@ describe('angularx', function () {
         }));
 
         describe('given predicate', function () {
-            var predicate;
+            var predicate, d;
+            var count = 0;
 
-            beforeEach(function () {
-                predicate = jasmine.createSpy('predicateHandler');
+            beforeEach(inject(function ($q) {
+                d = $q.defer();
+                predicate = function() {
+                    count++;
+                    return d.promise;
+                };
                 args.predicate = predicate;
-            });
+            }));
 
             function testPredicateFor(args) {
                 return inject(function ($rootScope) {
-                    predicate.andReturn(args.resolvesTo);
+                    args.resolvesTo ? d.resolve() : d.reject();
+                    $rootScope.$apply();
                     execute().then(success);
                     $rootScope.$apply();
                     expect(success.calls.length).toEqual(args.resolvesTo ? 1 : 0);
@@ -584,7 +590,8 @@ describe('angularx', function () {
                 });
 
                 it('when false execute rejection handler', inject(function ($rootScope) {
-                    predicate.andReturn(false);
+                    d.reject();
+                    $rootScope.$apply();
                     execute().then(success, rejected);
                     $rootScope.$apply();
                     expect(rejected.calls.length).toEqual(1);
@@ -603,29 +610,26 @@ describe('angularx', function () {
                     });
 
                     it('then retries until timeout reached', inject(function($rootScope, $timeout) {
+                        d.reject();
                         execute();
                         $timeout.flush();
-                        expect(predicate.calls.length).toEqual(2);
-                        now.setTime(now.getTime() + count * duration);
-                        $timeout.flush();
-                        expect(predicate.calls.length).toEqual(3);
-                        now.setTime(now.getTime() + 1);
-                        $timeout.flush();
-                        expect(predicate.calls.length).toEqual(3);
+                        expect(count).toEqual(10);
                     }));
 
                     it('when timeout reached then execute rejection handler', inject(function($timeout) {
+                        d.reject();
                         execute().then(success, rejected);
                         now.setTime(now.getTime() + count * duration);
                         now.setTime(now.getTime() + 1);
+                        $timeout.flush();
                         $timeout.flush();
                         expect(rejected.calls.length).toEqual(1);
                         expect(rejected.calls[0].args[0]).toEqual('timeout');
                     }));
 
                     it('when true before timeout reached then execute success handler', inject(function($timeout) {
+                        d.resolve();
                         execute().then(success, rejected);
-                        predicate.andReturn(true);
                         $timeout.flush();
                         expect(success.calls.length).toEqual(1);
                     }));
