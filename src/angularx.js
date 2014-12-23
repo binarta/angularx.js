@@ -8,8 +8,29 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint'])
     .directive('binBack', ['$window', BinBackDirectiveFactory])
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
-    .factory('predicatedBarrier', ['$q', '$timeout', PredicatedBarrierFactory])
+    .service('binDateController', [BinDateController])
+    .factory('predicatedBarrier', ['$q', '$timeout', 'binDateController', PredicatedBarrierFactory])
     .run(['topicMessageDispatcher', EndOfPageListener]);
+
+function BinDateController() {
+    this.now = function() {
+        var d = new Date();
+        if(this.lockedAt) d.setTime(this.lockedAt);
+        return d;
+    };
+
+    this.freeze = function() {
+        this.lockedAt = new Date().getTime();
+    };
+
+    this.resume = function() {
+        this.lockedAt = undefined;
+    };
+
+    this.jump = function(ms) {
+        if(this.lockedAt) this.lockedAt += ms;
+    }
+}
 
 function binSplitInRowsDirectiveFactory() {
     return function ($scope, el, attrs) {
@@ -193,7 +214,7 @@ function BinTemplateService(config, activeUserHasPermission) {
     };
 }
 
-function PredicatedBarrierFactory($q, $timeout) {
+function PredicatedBarrierFactory($q, $timeout, clock) {
     var duration = 1000;
 
     function waitFor(args) {
@@ -202,24 +223,17 @@ function PredicatedBarrierFactory($q, $timeout) {
             args.predicate().then(args.deferred.resolve, function() {
                 if (args.timeout != undefined)
                     $timeout(function () {
+                        args.now = clock.now();
                         waitFor(args);
                     }, duration);
                 else args.deferred.reject('timeout')
             });
-            //if (args.predicate()) args.deferred.resolve();
-            //else {
-            //    if (args.timeout != undefined)
-            //        $timeout(function () {
-            //            waitFor(args);
-            //        }, duration);
-            //    else args.deferred.reject('timeout')
-            //}
         }
     }
 
     return function (args) {
         var d = $q.defer();
-        var now = args.now || new Date();
+        var now = clock.now();
         if (args.predicate) waitFor({
             predicate: args.predicate,
             deferred: d,

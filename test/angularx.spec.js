@@ -536,14 +536,19 @@ describe('angularx', function () {
     });
 
     describe('predicated barrier', function () {
-        var barrier, success;
-        var args;
+        var barrier, clock, success, args;
 
-        beforeEach(inject(function (predicatedBarrier) {
+        beforeEach(inject(function (predicatedBarrier, binDateController) {
             barrier = predicatedBarrier;
+            clock = binDateController;
+            clock.freeze();
             success = jasmine.createSpy('successHandler');
             args = {};
         }));
+
+        afterEach(function() {
+            clock.resume();
+        });
 
         function execute() {
             return barrier(args);
@@ -619,8 +624,9 @@ describe('angularx', function () {
                     it('when timeout reached then execute rejection handler', inject(function($timeout) {
                         d.reject();
                         execute().then(success, rejected);
-                        now.setTime(now.getTime() + count * duration);
-                        now.setTime(now.getTime() + 1);
+                        clock.jump(clock.now().getTime()  + count * duration + 1);
+                        //now.setTime(now.getTime() + count * duration);
+                        //now.setTime(now.getTime() + 1);
                         $timeout.flush();
                         $timeout.flush();
                         expect(rejected.calls.length).toEqual(1);
