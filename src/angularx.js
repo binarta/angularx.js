@@ -9,6 +9,8 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint'])
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
     .service('binDateController', [BinDateController])
+    .factory('applicationMenuFSM', [ApplicationMenuFSMFactory])
+    .controller('ApplicationMenuController', ['$scope', 'applicationMenuFSM', ApplicationMenuController])
     .factory('predicatedBarrier', ['$q', '$timeout', 'binDateController', PredicatedBarrierFactory])
     .run(['topicMessageDispatcher', EndOfPageListener]);
 
@@ -254,4 +256,45 @@ function BinBackDirectiveFactory($window) {
             });
         }
     }
+}
+
+function ApplicationMenuFSM() {
+    var self = this;
+
+    function ClosedState() {
+        this.status = 'closed';
+        this.close = function(fsm) {};
+        this.open = function(fsm) {
+            fsm.currentState = new OpenedState();
+        }
+    }
+
+    function OpenedState() {
+        this.status = 'opened';
+        this.open = function(fsm) {};
+        this.close = function(fsm) {
+            fsm.currentState = new ClosedState();
+        }
+    }
+
+    this.currentState = new ClosedState();
+
+    this.status = function() {
+        return self.currentState.status;
+    };
+    this.close = function() {
+        self.currentState.close(self);
+    };
+    this.open = function() {
+        self.currentState.open(self);
+    };
+}
+function ApplicationMenuFSMFactory() {
+    return new ApplicationMenuFSM();
+}
+
+function ApplicationMenuController($scope, applicationMenuFSM) {
+    $scope.status = applicationMenuFSM.status;
+    $scope.open = applicationMenuFSM.open;
+    $scope.close = applicationMenuFSM.close;
 }

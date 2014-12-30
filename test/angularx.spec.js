@@ -690,4 +690,43 @@ describe('angularx', function () {
             });
         });
     });
+
+    describe('ApplicationMenuFSM', function() {
+        var fsm, ctrl, scope;
+
+        beforeEach(inject(function(applicationMenuFSM, $controller, $rootScope) {
+            scope = $rootScope.$new();
+            fsm = applicationMenuFSM;
+            ctrl = $controller(ApplicationMenuController, {$scope:scope});
+        }));
+
+        it('starts out closed', function() {
+            expect(fsm.status()).toEqual('closed');
+        });
+
+        it('closing has no effect', function() {
+            fsm.close();
+            expect(fsm.status()).toEqual('closed');
+        });
+
+        describe('when opening', function() {
+            beforeEach(function() {
+                fsm.open();
+            });
+
+            it('then menu is opened', function() {
+                expect(fsm.status()).toEqual('opened');
+            });
+
+            it('and opening again has no effect', function() {
+                fsm.open();
+                expect(fsm.status()).toEqual('opened');
+            });
+
+            it('and closing again', function() {
+                fsm.close();
+                expect(fsm.status()).toEqual('closed');
+            });
+        });
+    });
 });
