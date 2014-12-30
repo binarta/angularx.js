@@ -266,6 +266,9 @@ function ApplicationMenuFSM() {
         this.close = function(fsm) {};
         this.open = function(fsm) {
             fsm.currentState = new OpenedState();
+        };
+        this.toggle = function(fsm) {
+            this.open(fsm);
         }
     }
 
@@ -274,6 +277,9 @@ function ApplicationMenuFSM() {
         this.open = function(fsm) {};
         this.close = function(fsm) {
             fsm.currentState = new ClosedState();
+        };
+        this.toggle = function(fsm) {
+            this.close(fsm);
         }
     }
 
@@ -288,6 +294,9 @@ function ApplicationMenuFSM() {
     this.open = function() {
         self.currentState.open(self);
     };
+    this.toggle = function() {
+        self.currentState.toggle(self);
+    }
 }
 function ApplicationMenuFSMFactory() {
     return new ApplicationMenuFSM();
@@ -297,4 +306,5 @@ function ApplicationMenuController($scope, applicationMenuFSM) {
     $scope.status = applicationMenuFSM.status;
     $scope.open = applicationMenuFSM.open;
     $scope.close = applicationMenuFSM.close;
+    $scope.toggle = applicationMenuFSM.toggle;
 }

@@ -709,6 +709,11 @@ describe('angularx', function () {
             expect(fsm.status()).toEqual('closed');
         });
 
+        it('toggle opens', function() {
+            fsm.toggle();
+            expect(fsm.status()).toEqual('opened');
+        });
+
         describe('when opening', function() {
             beforeEach(function() {
                 fsm.open();
@@ -725,6 +730,11 @@ describe('angularx', function () {
 
             it('and closing again', function() {
                 fsm.close();
+                expect(fsm.status()).toEqual('closed');
+            });
+
+            it('toggle closes', function() {
+                fsm.toggle();
                 expect(fsm.status()).toEqual('closed');
             });
         });
