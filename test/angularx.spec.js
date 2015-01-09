@@ -691,13 +691,14 @@ describe('angularx', function () {
         });
     });
 
-    describe('ApplicationMenuFSM', function() {
+    describe('OpenCloseMenuFSM', function() {
         var fsm, ctrl, scope;
 
-        beforeEach(inject(function(applicationMenuFSM, $controller, $rootScope) {
+        beforeEach(inject(function(openCloseMenuFSMFactory, $controller, $rootScope) {
             scope = $rootScope.$new();
-            fsm = applicationMenuFSM;
-            ctrl = $controller(ApplicationMenuController, {$scope:scope});
+            fsm = openCloseMenuFSMFactory({id:'x'});
+            ctrl = $controller(OpenCloseMenuController, {$scope:scope});
+            scope.connect({id:'x'})
         }));
 
         it('starts out closed', function() {
@@ -737,6 +738,14 @@ describe('angularx', function () {
                 fsm.toggle();
                 expect(fsm.status()).toEqual('closed');
             });
+
+            it('creating an fsm with the same id returns the existing fsm', inject(function(openCloseMenuFSMFactory) {
+                expect(openCloseMenuFSMFactory({id:'x'}).status()).toEqual('opened');
+            }));
+
+            it('creating an fsm with a different id', inject(function(openCloseMenuFSMFactory) {
+                expect(openCloseMenuFSMFactory({id:'y'}).status()).toEqual('closed');
+            }));
         });
     });
 });

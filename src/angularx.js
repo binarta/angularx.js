@@ -9,7 +9,9 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint'])
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
     .service('binDateController', [BinDateController])
-    .factory('applicationMenuFSM', [ApplicationMenuFSMFactory])
+    .factory('openCloseMenuFSMFactory', [OpenCloseMenuFSMFactoryFactory])
+    .controller('OpenCloseMenuController', ['$scope', 'openCloseMenuFSMFactory', OpenCloseMenuController])
+    .factory('applicationMenuFSM', ['openCloseMenuFSMFactory', ApplicationMenuFSMFactory])
     .controller('ApplicationMenuController', ['$scope', 'applicationMenuFSM', ApplicationMenuController])
     .factory('predicatedBarrier', ['$q', '$timeout', 'binDateController', PredicatedBarrierFactory])
     .run(['topicMessageDispatcher', EndOfPageListener]);
@@ -258,7 +260,7 @@ function BinBackDirectiveFactory($window) {
     }
 }
 
-function ApplicationMenuFSM() {
+function OpenCloseMenuFSM() {
     var self = this;
 
     function ClosedState() {
@@ -298,8 +300,36 @@ function ApplicationMenuFSM() {
         self.currentState.toggle(self);
     }
 }
-function ApplicationMenuFSMFactory() {
-    return new ApplicationMenuFSM();
+
+function OpenCloseMenuFSMFactoryFactory() {
+    var fsms = {};
+
+    return function(args) {
+        if(!fsms[args.id]) fsms[args.id] = new OpenCloseMenuFSM();
+        return fsms[args.id];
+    };
+}
+
+function ApplicationMenuFSMFactory(openCloseMenuFSMFactory) {
+    return openCloseMenuFSMFactory({id:'application'});
+}
+
+function OpenCloseMenuController($scope, openCloseMenuFSMFactory) {
+    var dummy = function() {};
+
+    $scope.status = dummy;
+    $scope.open = dummy;
+    $scope.close = dummy;
+    $scope.toggle = dummy;
+
+    $scope.connect = function(args) {
+        var fsm = openCloseMenuFSMFactory(args);
+
+        $scope.status = fsm.status;
+        $scope.open = fsm.open;
+        $scope.close = fsm.close;
+        $scope.toggle = fsm.toggle;
+    }
 }
 
 function ApplicationMenuController($scope, applicationMenuFSM) {
