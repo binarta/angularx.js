@@ -1,4 +1,4 @@
-angular.module('angularx', ['notifications', 'config', 'checkpoint'])
+angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.usecase.adapter'])
     .directive('binSplitInRows', binSplitInRowsDirectiveFactory)
     .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
     .directive('binGroupBy', binGroupByDirectiveFactory)
@@ -13,6 +13,8 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint'])
     .controller('OpenCloseMenuController', ['$scope', 'openCloseMenuFSMFactory', OpenCloseMenuController])
     .factory('applicationMenuFSM', ['openCloseMenuFSMFactory', ApplicationMenuFSMFactory])
     .controller('ApplicationMenuController', ['$scope', 'applicationMenuFSM', ApplicationMenuController])
+    .provider('optionsMenuFactory', OptionsMenuFactoryProvider)
+    .controller('optionsMenuController', ['$scope', 'optionsMenuFactory', 'usecaseAdapterFactory', OptionsMenuController])
     .factory('predicatedBarrier', ['$q', '$timeout', 'binDateController', PredicatedBarrierFactory])
     .run(['topicMessageDispatcher', EndOfPageListener]);
 
@@ -337,4 +339,97 @@ function ApplicationMenuController($scope, applicationMenuFSM) {
     $scope.open = applicationMenuFSM.open;
     $scope.close = applicationMenuFSM.close;
     $scope.toggle = applicationMenuFSM.toggle;
+}
+
+function MenuOption(args) {
+    var self = this;
+
+    this.id = function() {return args.ctx.id};
+    this.select = function() {
+        args.menu.select(self);
+    }
+}
+function OptionsMenu(args) {
+    var self = this;
+    var options = (args.options || []).map(function(it) {
+        return new MenuOption({menu:self, ctx:it});
+    });
+    var reader = function() {};
+    var writer = function() {};
+    var currentSelection;
+
+    this.options = function() {
+        return options;
+    };
+
+    this.currentSelection = function() {
+        return currentSelection;
+    };
+
+    var setCurrentSelectionTo = function(initialSelection) {
+        if(initialSelection) currentSelection = options.reduce(function(p, c) {
+            return p || (c.id() == initialSelection ? c : p);
+        }, undefined);
+    };
+    setCurrentSelectionTo(args.default);
+
+    this.installIOHandlers = function(args) {
+        reader = args.reader;
+        writer = args.writer;
+        reader({
+            success:setCurrentSelectionTo,
+            notFound:function() {},
+            error:function() {}
+        });
+    };
+
+    this.select = function(option) {
+        currentSelection = option;
+    };
+
+    this.saveCurrentSelection = function(response) {
+        writer(currentSelection.id(), response);
+    }
+}
+function OptionsMenuFactoryProvider() {
+    var config = {};
+    var menus = {};
+
+    this.installOptions = function(args) {
+        config[args.id] = args;
+    };
+
+    this.$get = [function() {
+        return function(args) {
+            if(!menus[args.id]) menus[args.id] = new OptionsMenu(config[args.id] || {});
+            return menus[args.id];
+        }
+    }]
+}
+function OptionsMenuController($scope, optionsMenuFactory, usecaseAdapterFactory) {
+    var dummy = function() {return {}};
+    var originalSelection;
+
+    $scope.options = dummy;
+    $scope.currentSelection = dummy;
+    $scope.pristine = function() {
+        return !originalSelection;
+    };
+
+    $scope.connect = function(args) {
+        var menu = optionsMenuFactory(args);
+        $scope.options = menu.options;
+        $scope.currentSelection = menu.currentSelection;
+        $scope.saveCurrentSelection = function() {
+            menu.saveCurrentSelection(usecaseAdapterFactory($scope, function() {
+                originalSelection = undefined;
+            }));
+        }
+    };
+
+    $scope.select = function(option) {
+        if(!originalSelection) originalSelection = $scope.currentSelection();
+        else if(option.id() == originalSelection.id()) originalSelection = undefined;
+        option.select();
+    }
 }

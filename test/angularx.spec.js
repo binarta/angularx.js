@@ -748,4 +748,128 @@ describe('angularx', function () {
             }));
         });
     });
+
+    describe('OptionsMenu', function() {
+        var factory, menu;
+
+        describe('optional configuration', function() {
+            beforeEach(inject(function(optionsMenuFactory) {
+                factory = optionsMenuFactory;
+                menu = optionsMenuFactory({id:'MNO'});
+            }));
+
+            it('is empty', function() {
+                expect(menu.options()).toEqual([]);
+            });
+        });
+
+        describe('with configured options', function() {
+            angular.module('MWO', ['angularx']).config(['optionsMenuFactoryProvider', function(config) {
+                config.installOptions({
+                    id:'MWO',
+                    options:[{id:'O1'}, {id:'O2'}]
+                });
+            }]);
+
+            beforeEach(module('MWO'));
+
+            beforeEach(inject(function(optionsMenuFactory) {
+                factory = optionsMenuFactory;
+                menu = optionsMenuFactory({id:'MWO'});
+            }));
+
+            it('not empty', function() {
+                expect(menu.options().length).toEqual(2);
+            });
+
+            it('no option is pre selected', function() {
+                expect(menu.currentSelection()).toBeUndefined();
+            });
+
+            it('select an option', function() {
+                menu.options()[0].select();
+                expect(menu.currentSelection().id()).toEqual('O1');
+            });
+        });
+
+        describe('with default option', function() {
+            angular.module('MWDO', ['angularx']).config(['optionsMenuFactoryProvider', function(config) {
+                config.installOptions({
+                    id:'MWDO',
+                    options:[{id:'O1'}, {id:'O2'}],
+                    default:'O2'
+                });
+            }]);
+
+            beforeEach(module('MWDO'));
+
+            beforeEach(inject(function(optionsMenuFactory) {
+                factory = optionsMenuFactory;
+                menu = optionsMenuFactory({id:'MWDO'});
+            }));
+
+            it('option is pre selected', function() {
+                expect(menu.currentSelection().id()).toEqual('O2');
+            });
+
+            it('select an option', function() {
+                menu.options()[0].select();
+                expect(menu.currentSelection().id()).toEqual('O1');
+            });
+        });
+
+        describe('with callbacks', function() {
+            var persistedOption = 'O2';
+            var capturedResponseHandlers;
+
+            var reader = function(response) {
+                response.success(persistedOption);
+            };
+            var writer = function(option, response) {
+                persistedOption = option;
+                capturedResponseHandlers = response;
+            };
+
+            angular.module('MWC', ['angularx'])
+                .config(['optionsMenuFactoryProvider', function(config) {
+                    config.installOptions({
+                        id:'MWC',
+                        options:[{id:'O1'}, {id:'O2'}],
+                        default:'O1'
+                    });
+                }])
+                .run(['optionsMenuFactory', function(factory) {
+                    factory({id:'MWC'}).installIOHandlers({
+                        reader:reader,
+                        writer:writer
+                    });
+                }]);
+
+            beforeEach(module('MWC'));
+            beforeEach(inject(function(optionsMenuFactory) {
+                factory = optionsMenuFactory;
+                menu = optionsMenuFactory({id:'MWC'});
+            }));
+
+            it('reader overrides default option', function() {
+
+                expect(menu.currentSelection().id()).toEqual('O2');
+            });
+
+            describe('save currently selected option', function() {
+                beforeEach(function() {
+                    menu.options()[0].select();
+                    menu.saveCurrentSelection('response handlers');
+                });
+
+                it('captured currently selected option', function() {
+                    expect(persistedOption).toEqual('O1');
+                });
+
+                it('captured response handlers', function() {
+                    expect(capturedResponseHandlers).toEqual('response handlers');
+                });
+            });
+        });
+    });
 });
