@@ -408,12 +408,15 @@ function OptionsMenuFactoryProvider() {
 }
 function OptionsMenuController($scope, optionsMenuFactory, usecaseAdapterFactory) {
     var dummy = function() {return {}};
-    var originalSelection;
+    var originalSelection, saved;
 
     $scope.options = dummy;
     $scope.currentSelection = dummy;
     $scope.pristine = function() {
         return !originalSelection;
+    };
+    $scope.saved = function() {
+        return saved;
     };
 
     $scope.connect = function(args) {
@@ -423,11 +426,13 @@ function OptionsMenuController($scope, optionsMenuFactory, usecaseAdapterFactory
         $scope.saveCurrentSelection = function() {
             menu.saveCurrentSelection(usecaseAdapterFactory($scope, function() {
                 originalSelection = undefined;
+                saved = true;
             }));
         }
     };
 
     $scope.select = function(option) {
+        saved = undefined;
         if(!originalSelection) originalSelection = $scope.currentSelection();
         else if(option.id() == originalSelection.id()) originalSelection = undefined;
         option.select();
