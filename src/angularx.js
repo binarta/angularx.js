@@ -409,6 +409,11 @@ function OptionsMenuFactoryProvider() {
 function OptionsMenuController($scope, optionsMenuFactory, usecaseAdapterFactory) {
     var dummy = function() {return {}};
     var originalSelection, saved;
+    var self = this;
+
+    $scope.init = function(args) {
+        self.ctx = args;
+    };
 
     $scope.options = dummy;
     $scope.currentSelection = dummy;
@@ -427,6 +432,7 @@ function OptionsMenuController($scope, optionsMenuFactory, usecaseAdapterFactory
             menu.saveCurrentSelection(usecaseAdapterFactory($scope, function() {
                 originalSelection = undefined;
                 saved = true;
+                if (self.ctx && self.ctx.success) self.ctx.success();
             }));
         }
     };
