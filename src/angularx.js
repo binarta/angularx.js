@@ -339,6 +339,11 @@ function ApplicationMenuController($scope, applicationMenuFSM) {
     $scope.open = applicationMenuFSM.open;
     $scope.close = applicationMenuFSM.close;
     $scope.toggle = applicationMenuFSM.toggle;
+
+    this.status = applicationMenuFSM.status;
+    this.open = applicationMenuFSM.open;
+    this.close = applicationMenuFSM.close;
+    this.toggle = applicationMenuFSM.toggle;
 }
 
 function MenuOption(args) {
