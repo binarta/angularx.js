@@ -872,4 +872,26 @@ describe('angularx', function () {
             });
         });
     });
+
+    describe('angular.merge', function() {
+        it('merge 2 maps', function() {
+            var left = {a:'a'};
+            var right = {b:'b'};
+            expect(angular.merge(left, right)).toEqual({a:'a',b:'b'});
+        });
+
+        it('right side overwrites left side', function() {
+            var left = {a:'a', b:'b'};
+            var right = {b:'c'};
+            expect(angular.merge(left, right)).toEqual({a:'a', b:'c'});
+        });
+
+        it('merge into a destination', function() {
+            var dst = {};
+            var left = {a:'a'};
+            var right = {b:'b'};
+            angular.merge(dst, left, right);
+            expect(dst).toEqual({a:'a', b:'b'})
+        })
+    });
 });
