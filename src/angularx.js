@@ -167,6 +167,12 @@ function ResourceLoaderService($rootScope, $document, $compile) {
         head.append(element);
     }
 
+    function addScriptResourceToDom(href) {
+        var element = getScriptElement(href);
+        scope.resources[href] = element;
+        head.append(element);
+    }
+
     function getElement(href) {
         if (href.slice(-4) == '.css') return getStylesheetElement(href);
         else if (href.slice(-3) == '.js') return getScriptElement(href);
@@ -188,6 +194,9 @@ function ResourceLoaderService($rootScope, $document, $compile) {
     return {
         add: function (href) {
             if (!scope.resources[href]) addResourceToDom(href);
+        },
+        addScript: function (href) {
+            if (!scope.resources[href]) addScriptResourceToDom(href);
         },
         remove: function (href) {
             if (scope.resources[href]) removeResourceFromDom(href);

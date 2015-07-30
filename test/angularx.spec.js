@@ -380,6 +380,13 @@ describe('angularx', function () {
             expect(scope.resources['/base/test/test.js']).toBeDefined();
         });
 
+        it('add a script that does not end with js-extension to the dom', function () {
+            loader.addScript('/base/test/test.txt');
+
+            expect(document.find('head').html()).toContain('<script src="/base/test/test.txt" class="ng-scope"></script>');
+            expect(scope.resources['/base/test/test.txt']).toBeDefined();
+        });
+
         it('avoid the same stylesheet to be added', function () {
             loader.add('test.css');
             loader.add('test.css');
