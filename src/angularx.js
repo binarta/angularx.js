@@ -24,6 +24,8 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.us
         * https://github.com/angular/angular.js/issues/12241
         *
         * Patch taken from https://gist.github.com/IgorMinar/863acd413e3925bf282c
+        *
+        * UPDATE: this bug is fixed in angular v1.5.0-beta: https://github.com/angular/angular.js/commit/8d39bd8abf423517b5bff70137c2a29e32bff76d
         */
         $provide.decorator('$browser', ['$delegate', '$window', function($delegate, $window) {
             if (isIOS9UIWebView($window.navigator.userAgent)) {
