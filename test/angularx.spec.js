@@ -376,14 +376,14 @@ describe('angularx', function () {
         it('add a script to the dom', function () {
             loader.add('/base/test/test.js');
 
-            expect(document.find('head').html()).toContain('<script src="/base/test/test.js" class="ng-scope"></script>');
+            expect(document.find('head').html()).toContain('<script src="/base/test/test.js" async="" class="ng-scope"></script>');
             expect(scope.resources['/base/test/test.js']).toBeDefined();
         });
 
         it('add a script that does not end with js-extension to the dom', function () {
             loader.addScript('/base/test/test.txt');
 
-            expect(document.find('head').html()).toContain('<script src="/base/test/test.txt" class="ng-scope"></script>');
+            expect(document.find('head').html()).toContain('<script src="/base/test/test.txt" async="" class="ng-scope"></script>');
             expect(scope.resources['/base/test/test.txt']).toBeDefined();
         });
 

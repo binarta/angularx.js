@@ -227,7 +227,7 @@ function ResourceLoaderService($rootScope, $document, $compile) {
     }
 
     function getScriptElement(href) {
-        return $compile('<script src="' + href + '">')(scope);
+        return $compile('<script src="' + href + '" async>')(scope);
     }
 
     function removeResourceFromDom(href) {
