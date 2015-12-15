@@ -7,6 +7,7 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.us
     .directive('binExposeBoxWidth', binExposeBoxWidth)
     .directive('binToggle', binToggle)
     .directive('binBack', ['$window', BinBackDirectiveFactory])
+    .filter('binTruncate', BinTruncateFilter)
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
     .service('binDateController', [BinDateController])
@@ -527,4 +528,45 @@ function merge(dst){
         return dst;
     }
     return baseExtend(dst, slice.call(arguments, 1), true);
+}
+
+function BinTruncateFilter() {
+    return function (value, length) {
+        if (value) {
+            var ellipsis = '\u2026';
+            var limit = length || 50;
+            if (length == 0) return ellipsis;
+            else return truncate(angular.element('<div>' + value + '</div>')).html();
+
+            function truncate(parent) {
+                return angular.forEach(parent, function (el) {
+                    var parentElement = angular.element(el);
+                    var parentText = parentElement.text();
+                    var excess = parentText.length - limit;
+                    if (excess > 0) excess = parentText.length - parentText.slice(0, limit).replace(/(\s*\S+|\s)$/, '').length - 1;
+                    if (excess < 0 || !excess) return;
+
+                    var reversedChildNodes = parentElement.contents().get().reverse();
+                    for(var i = 0; i <= reversedChildNodes.length; i++) {
+                        var childNode = reversedChildNodes[i];
+                        var childElement = angular.element(childNode);
+                        var childTextLength = childElement.text().length;
+
+                        if (childTextLength <= excess) {
+                            excess -= childTextLength;
+                            childElement.remove();
+                        } else {
+                            if (childNode.nodeType === 3) {
+                                angular.element(childNode.splitText(childTextLength - excess)).replaceWith(ellipsis);
+                                break;
+                            }
+                            limit = childTextLength - excess;
+                            truncate(childElement);
+                            break;
+                        }
+                    }
+                });
+            }
+        }
+    };
 }

@@ -901,4 +901,129 @@ describe('angularx', function () {
             expect(dst).toEqual({a:'a', b:'b'})
         })
     });
+
+    describe('binTruncate filter', function () {
+        var filter;
+
+        beforeEach(inject(function (binTruncateFilter) {
+            filter = binTruncateFilter;
+        }));
+
+        it('no input', function () {
+            expect(filter()).toBeUndefined();
+        });
+
+        it('and basic string with undefined length', function () {
+            expect(filter('some words to truncate')).toEqual('some words to truncate');
+        });
+
+        it('default to a length of 50 chars', function () {
+            expect(filter('some words to truncate and see if by default only 50 chars are shown.'))
+                .toEqual('some words to truncate and see if by default only \u2026');
+        });
+
+        it('and basic string with no length', function () {
+            expect(filter('some words to truncate', 0)).toEqual('\u2026');
+        });
+
+        describe('given a length', function () {
+            it('and empty string', function () {
+                expect(filter('', 2)).toBeUndefined();
+            });
+
+            it('and basic string', function () {
+                expect(filter('some words to truncate', 11)).toEqual('some words \u2026');
+            });
+
+            it('and string contains html', function () {
+                expect(filter('<strong>some words to</strong> truncate', 11)).toEqual('<strong>some words \u2026</strong>');
+            });
+
+            [
+                {
+                    length: 0,
+                    expected: '\u2026'
+                }, {
+                    length: 1,
+                    expected: 's\u2026'
+                }, {
+                    length: 2,
+                    expected: 's\u2026'
+                }, {
+                    length: 3,
+                    expected: 's\u2026'
+                }, {
+                    length: 4,
+                    expected: 's\u2026'
+                }, {
+                    length: 5,
+                    expected: 'some \u2026'
+                }, {
+                    length: 6,
+                    expected: 'some \u2026'
+                }, {
+                    length: 7,
+                    expected: 'some \u2026'
+                }, {
+                    length: 8,
+                    expected: 'some \u2026'
+                }, {
+                    length: 9,
+                    expected: 'some \u2026'
+                }, {
+                    length: 10,
+                    expected: 'some \u2026'
+                }, {
+                    length: 11,
+                    expected: 'some <a href="http://test.com">words \u2026</a>'
+                }, {
+                    length: 12,
+                    expected: 'some <a href="http://test.com">words \u2026</a>'
+                }, {
+                    length: 13,
+                    expected: 'some <a href="http://test.com">words \u2026</a>'
+                }, {
+                    length: 14,
+                    expected: 'some <a href="http://test.com">words to</a> \u2026'
+                }, {
+                    length: 15,
+                    expected: 'some <a href="http://test.com">words to</a> \u2026'
+                }, {
+                    length: 16,
+                    expected: 'some <a href="http://test.com">words to</a> \u2026'
+                }, {
+                    length: 16,
+                    expected: 'some <a href="http://test.com">words to</a> \u2026'
+                }, {
+                    length: 17,
+                    expected: 'some <a href="http://test.com">words to</a> \u2026'
+                }, {
+                    length: 18,
+                    expected: 'some <a href="http://test.com">words to</a> \u2026'
+                }, {
+                    length: 19,
+                    expected: 'some <a href="http://test.com">words to</a> \u2026'
+                }, {
+                    length: 20,
+                    expected: 'some <a href="http://test.com">words to</a> \u2026'
+                }, {
+                    length: 21,
+                    expected: 'some <a href="http://test.com">words to</a> \u2026'
+                }, {
+                    length: 22,
+                    expected: 'some <a href="http://test.com">words to</a> <ul><li>truncate</li></ul>'
+                }, {
+                    length: 50,
+                    expected: 'some <a href="http://test.com">words to</a> <ul><li>truncate</li></ul>'
+                }
+            ].forEach(function (test) {
+                    it('with length ' + test.length, function () {
+                        var actual = 'some <a href="http://test.com">words to</a> <ul><li>truncate</li></ul>';
+
+                        expect(filter(actual, test.length)).toEqual(test.expected);
+                    });
+                });
+
+        });
+    });
 });
