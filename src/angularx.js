@@ -534,19 +534,27 @@ function BinTruncateFilter() {
     return function (value, length) {
         if (value) {
             var ellipsis = '\u2026';
+            var shouldAddEllipsis = false;
             var limit = length || 50;
             if (length == 0) return ellipsis;
             else return truncate(angular.element('<div>' + value + '</div>')).html();
 
             function truncate(parent) {
                 return angular.forEach(parent, function (el) {
-                    var parentElement = angular.element(el);
-                    var parentText = parentElement.text();
-                    var excess = parentText.length - limit;
-                    if (excess > 0) excess = parentText.length - parentText.slice(0, limit).replace(/(\s*\S+|\s)$/, '').length - 1;
-                    if (excess < 0 || !excess) return;
+                    var element = angular.element(el);
+                    var text = element.text();
+                    var excess = text.length - limit;
+                    if (excess > 0) {
+                        shouldAddEllipsis = true;
+                        excess = text.length - text.slice(0, limit).replace(/(\S+)$/, '').length;
+                    }
+                    if (excess < 0) return;
+                    if (!excess) {
+                        if (shouldAddEllipsis) element.append(ellipsis);
+                        return;
+                    }
 
-                    var reversedChildNodes = parentElement.contents().get().reverse();
+                    var reversedChildNodes = element.contents().get().reverse();
                     for(var i = 0; i <= reversedChildNodes.length; i++) {
                         var childNode = reversedChildNodes[i];
                         var childElement = angular.element(childNode);
@@ -554,9 +562,13 @@ function BinTruncateFilter() {
 
                         if (childTextLength <= excess) {
                             excess -= childTextLength;
-                            childElement.remove();
+                            if (excess > 0) childElement.remove();
+                            else {
+                                childElement.replaceWith(ellipsis);
+                                break;
+                            }
                         } else {
-                            if (childNode.nodeType === 3) {
+                            if (childNode.nodeType == 3) {
                                 angular.element(childNode.splitText(childTextLength - excess)).replaceWith(ellipsis);
                                 break;
                             }

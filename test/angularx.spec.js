@@ -937,6 +937,9 @@ describe('angularx', function () {
 
             it('and string contains html', function () {
                 expect(filter('<strong>some words to</strong> truncate', 11)).toEqual('<strong>some words \u2026</strong>');
+                expect(filter('<p>foo</p> <p>bar</p>', 3)).toEqual('\u2026');
+                expect(filter('<p><a href="http://www.xyz.com/aaaaaaaaaaaaaaaaaaa.html" target="_blank">aaaaaaaaaaaaaaaaaa</a></p> <ul> <li>bbbbbbbb</li> <li>cccccccccccc</li> </ul> <p><a href="http://www.xyz.com/abc.html" target="_blank">dddddddddddd</a></p>'))
+                    .toEqual('<p><a href="http://www.xyz.com/aaaaaaaaaaaaaaaaaaa.html" target="_blank">aaaaaaaaaaaaaaaaaa</a></p> <ul> <li>bbbbbbbb</li> <li>cccccccccccc</li> </ul> \u2026');
             });
 
             [
@@ -945,16 +948,16 @@ describe('angularx', function () {
                     expected: '\u2026'
                 }, {
                     length: 1,
-                    expected: 's\u2026'
+                    expected: '\u2026'
                 }, {
                     length: 2,
-                    expected: 's\u2026'
+                    expected: '\u2026'
                 }, {
                     length: 3,
-                    expected: 's\u2026'
+                    expected: '\u2026'
                 }, {
                     length: 4,
-                    expected: 's\u2026'
+                    expected: '\u2026'
                 }, {
                     length: 5,
                     expected: 'some \u2026'
