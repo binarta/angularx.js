@@ -8,6 +8,7 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.us
     .directive('binToggle', binToggle)
     .directive('binBack', ['$window', BinBackDirectiveFactory])
     .filter('binTruncate', BinTruncateFilter)
+    .filter('binStripHtmlTags', BinStripHtmlTagsFilter)
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
     .service('binDateController', [BinDateController])
@@ -581,4 +582,10 @@ function BinTruncateFilter() {
             }
         }
     };
+}
+
+function BinStripHtmlTagsFilter() {
+    return function (value) {
+        if (value) return value.replace(/(<([^>]+)>)/ig,' ').replace(/\s+/g,' ').trim();
+    }
 }

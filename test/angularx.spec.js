@@ -1029,4 +1029,31 @@ describe('angularx', function () {
 
         });
     });
+
+    describe('binTruncate filter', function () {
+        var filter;
+
+        beforeEach(inject(function (binStripHtmlTagsFilter) {
+            filter = binStripHtmlTagsFilter;
+        }));
+
+        it('no input', function () {
+            expect(filter()).toBeUndefined();
+        });
+
+        it('no tags in string', function () {
+            expect(filter('The quick brown fox jumps over the lazy dog'))
+                .toEqual('The quick brown fox jumps over the lazy dog');
+        });
+
+        it('basic tags in string', function () {
+            expect(filter('<p>The <strong>quick</strong> brown fox <i>jumps</i> over the lazy dog</p>'))
+                .toEqual('The quick brown fox jumps over the lazy dog');
+        });
+
+        it('more advanced tags with attributes', function () {
+            expect(filter('<p style="text-align: center;">The <strong foo>quick</strong> brown fox <i class="bar">jumps</i> over the lazy dog</p>'))
+                .toEqual('The quick brown fox jumps over the lazy dog');
+        });
+    });
 });
