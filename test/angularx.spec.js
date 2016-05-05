@@ -1056,4 +1056,51 @@ describe('angularx', function () {
                 .toEqual('The quick brown fox jumps over the lazy dog');
         });
     });
+    
+    describe('binDebounce', function () {
+        var $timeout, binDebounce, called;
+        var callback = function (){
+            called++;
+        };
+        
+        beforeEach(inject(function (_$timeout_, _binDebounce_) {
+            $timeout = _$timeout_;
+            binDebounce = _binDebounce_;
+
+            called = 0;
+        }));
+
+        it('callback is debounced', function () {
+            var debounced = binDebounce(callback);
+            debounced();
+            debounced();
+
+            $timeout.flush(199);
+            expect(called).toEqual(0);
+            $timeout.flush(200);
+            expect(called).toEqual(1);
+        });
+        
+        it('with custom delay', function () {
+            var debounced = binDebounce(callback, 500);
+            debounced();
+            debounced();
+
+            $timeout.flush(499);
+            expect(called).toEqual(0);
+            $timeout.flush(500);
+            expect(called).toEqual(1);
+        });
+
+        it('call immediately', function () {
+            var debounced = binDebounce(callback, 200, true);
+            debounced();
+            debounced();
+
+            $timeout.flush(1);
+            expect(called).toEqual(1);
+            $timeout.flush(200);
+            expect(called).toEqual(2);
+        });
+    });
 });

@@ -19,6 +19,7 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.us
     .provider('optionsMenuFactory', OptionsMenuFactoryProvider)
     .controller('optionsMenuController', ['$scope', 'optionsMenuFactory', 'usecaseAdapterFactory', OptionsMenuController])
     .factory('predicatedBarrier', ['$q', '$timeout', 'binDateController', PredicatedBarrierFactory])
+    .factory('binDebounce', ['$timeout', BinDebounceFactory])
     .run(['topicMessageDispatcher', EndOfPageListener])
     .config(['$provide', function($provide) {
         /*
@@ -588,4 +589,17 @@ function BinStripHtmlTagsFilter() {
     return function (value) {
         if (value) return value.replace(/(<([^>]+)>)/ig,' ').replace(/\s+/g,' ').trim();
     }
+}
+
+function BinDebounceFactory($timeout) {
+    return function (callback, delay, immediate) {
+        var timeout;
+        if (immediate) callback();
+        return function () {
+            if (timeout) $timeout.cancel(timeout);
+            timeout = $timeout(function () {
+                callback();
+            }, delay || 200);
+        }
+    };
 }
