@@ -1,6 +1,6 @@
 if (angular.isUndefined(angular.merge)) angular.merge = merge;
-angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.usecase.adapter'])
-    .directive('binSplitInRows', binSplitInRowsDirectiveFactory)
+angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.usecase.adapter', 'viewport'])
+    .directive('binSplitInRows', ['viewport', binSplitInRowsDirectiveFactory])
     .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
     .directive('binGroupBy', binGroupByDirectiveFactory)
     .directive('binSelectTextOnClick', binSelectTextOnClick)
@@ -86,23 +86,48 @@ function BinDateController() {
     }
 }
 
-function binSplitInRowsDirectiveFactory() {
-    return function ($scope, el, attrs) {
-        function splitInRows(items, columns) {
-            var columnCount = parseInt(columns);
-            if (columnCount <= 0) return [];
-            var rows = [], index = 0;
-            for (var i = 0; i <= (items.length - 1); i = i + columnCount) {
-                rows.push({
-                    id: index++,
-                    items: items.slice(i, i + columnCount)
-                });
-            }
-            return rows;
+function binSplitInRowsDirectiveFactory(viewport) {
+    return function (scope, el, attrs) {
+        var destroy;
+        var columns = attrs.columns;
+        var xs = attrs.columnsXs;
+        var sm = attrs.columnsSm;
+        var md = attrs.columnsMd;
+        var lg = attrs.columnsLg;
+
+        function splitInRows(items) {
+            if (destroy) destroy();
+            destroy = viewport.onChange(function (size) {
+                var columnCount;
+                if (size == 'xs') columnCount = xs;
+                else if (size == 'sm') columnCount = sm || xs;
+                else if (size == 'md') columnCount = md || sm || xs;
+                else if (size == 'lg') columnCount = lg || md || sm || xs;
+                if (!columnCount) columnCount = columns || 1;
+                columnCount = parseInt(columnCount);
+                var rows = [];
+                if (columnCount > 0) {
+                    var index = 0;
+                    for (var i = 0; i <= (items.length - 1); i = i + columnCount) {
+                        rows.push({
+                            id: index++,
+                            items: items.slice(i, i + columnCount)
+                        });
+                    }
+                }
+                scope.rows = rows;
+            });
         }
 
-        $scope.$watchCollection(attrs.binSplitInRows, function (newItems) {
-            if (newItems) $scope.rows = splitInRows(newItems, attrs.columns);
+        scope.$watchCollection(attrs.binSplitInRows, function (newItems) {
+            if (newItems) {
+                if (newItems.length > 0) splitInRows(newItems);
+                else scope.rows = [];
+            }
+        });
+
+        scope.$on('$destroy', function() {
+            if (destroy) destroy();
         });
     }
 }

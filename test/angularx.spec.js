@@ -27,20 +27,31 @@ describe('angularx', function () {
     beforeEach(module('angularx'));
 
     describe('binSplitInRows directive', function () {
-        var element, html, scope;
+        var $compile, element, html, scope, viewport, viewportListenerIsDestroyed;
 
-        beforeEach(inject(function ($rootScope, $compile) {
+        beforeEach(inject(function ($rootScope, _$compile_, _viewport_) {
+            $compile = _$compile_;
             scope = $rootScope.$new();
             scope.collection = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-            html = '<div bin-split-in-rows="collection" columns="3"></div>';
-            element = angular.element(html);
-            $compile(element)(scope);
+
+            viewport = _viewport_;
+            viewport.onChange = function (callback) {
+                callback('xs');
+                return function () {
+                    viewportListenerIsDestroyed = true;
+                };
+            };
+            viewportListenerIsDestroyed = false;
         }));
 
         [
-            {columns: 0, expected: []},
             {
-                columns: 1, expected: [
+                attrs: 'columns="0"',
+                expected: []
+            },
+            {
+                attrs: 'columns="1"',
+                expected: [
                 {id: 0, items: [1]},
                 {id: 1, items: [2]},
                 {id: 2, items: [3]},
@@ -54,7 +65,8 @@ describe('angularx', function () {
             ]
             },
             {
-                columns: 2, expected: [
+                attrs: 'columns="2"',
+                expected: [
                 {id: 0, items: [1, 2]},
                 {id: 1, items: [3, 4]},
                 {id: 2, items: [5, 6]},
@@ -63,7 +75,8 @@ describe('angularx', function () {
             ]
             },
             {
-                columns: 3, expected: [
+                attrs: 'columns="3"',
+                expected: [
                 {id: 0, items: [1, 2, 3]},
                 {id: 1, items: [4, 5, 6]},
                 {id: 2, items: [7, 8, 9]},
@@ -71,82 +84,211 @@ describe('angularx', function () {
             ]
             },
             {
-                columns: 4, expected: [
+                attrs: 'columns="4"',
+                expected: [
                 {id: 0, items: [1, 2, 3, 4]},
                 {id: 1, items: [5, 6, 7, 8]},
                 {id: 2, items: [9, 10]}
             ]
             },
             {
-                columns: 5, expected: [
+                attrs: 'columns="5"',
+                expected: [
                 {id: 0, items: [1, 2, 3, 4, 5]},
                 {id: 1, items: [6, 7, 8, 9, 10]}
             ]
             },
             {
-                columns: 6, expected: [
+                attrs: 'columns="6"',
+                expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6]},
                 {id: 1, items: [7, 8, 9, 10]}
             ]
             },
             {
-                columns: 7, expected: [
+                attrs: 'columns="7"',
+                expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6, 7]},
                 {id: 1, items: [8, 9, 10]}
             ]
             },
             {
-                columns: 8, expected: [
+                attrs: 'columns="8"',
+                expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6, 7, 8]},
                 {id: 1, items: [9, 10]}
             ]
             },
             {
-                columns: 9, expected: [
+                attrs: 'columns="9"',
+                expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6, 7, 8, 9]},
                 {id: 1, items: [10]}
             ]
             },
             {
-                columns: 10, expected: [
+                attrs: 'columns="10"',
+                expected: [
                 {id: 0, items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
             ]
             }
         ].forEach(function (value) {
                 describe('creates rows for collection', function () {
-                    beforeEach(inject(function ($rootScope, $compile) {
-                        html = '<div bin-split-in-rows="collection" columns="' + value.columns + '"></div>';
+                    beforeEach(inject(function ($rootScope) {
+                        html = '<div bin-split-in-rows="collection" ' + value.attrs + '></div>';
                         element = angular.element(html);
                         $compile(element)(scope);
                         scope.$digest();
                     }));
 
-                    it('given column count ' + value.columns, function () {
+                    it('given column attributes: ' + value.attrs, function () {
                         expect(scope.rows).toEqual(value.expected);
                     });
                 });
             });
 
-        it('when the collection is undefined', function () {
-            scope.collection = undefined;
-            scope.$digest();
+        describe('with column count of 3', function () {
+            beforeEach(function () {
+                html = '<div bin-split-in-rows="collection" columns="3"></div>';
+                element = angular.element(html);
+                $compile(element)(scope);
+            });
 
-            expect(scope.rows).toBeUndefined();
+            describe('when the collection changes', function () {
+                beforeEach(function () {
+                    scope.$digest();
+                    scope.collection.push(11);
+                    scope.collection.push(12);
+                    scope.collection.push(13);
+                    scope.$digest();
+                });
+
+                it('update rows', function () {
+                    expect(scope.rows).toEqual([
+                        {id: 0, items: [1, 2, 3]},
+                        {id: 1, items: [4, 5, 6]},
+                        {id: 2, items: [7, 8, 9]},
+                        {id: 3, items: [10, 11, 12]},
+                        {id: 4, items: [13]}
+                    ]);
+                });
+
+                it('previous viewport listener is unregistered', function () {
+                    expect(viewportListenerIsDestroyed).toBeTruthy();
+                });
+            });
+
+            it('when the collection is undefined', function () {
+                scope.collection = undefined;
+                scope.$digest();
+
+                expect(scope.rows).toBeUndefined();
+            });
         });
 
-        it('when the collection changes', function () {
-            scope.collection.push(11);
-            scope.collection.push(12);
-            scope.collection.push(13);
+        describe('responsive columns', function () {
+            beforeEach(function () {
+                html = '<div bin-split-in-rows="collection" columns-xs="1" columns-sm="2" columns-md="3" columns-lg="4"></div>';
+                element = angular.element(html);
+                $compile(element)(scope);
+            });
+
+            it('with viewport xs', function () {
+                viewport.onChange = function (callback) {
+                    callback('xs');
+                };
+                scope.$digest();
+
+                expect(scope.rows).toEqual([
+                    {id: 0, items: [1]},
+                    {id: 1, items: [2]},
+                    {id: 2, items: [3]},
+                    {id: 3, items: [4]},
+                    {id: 4, items: [5]},
+                    {id: 5, items: [6]},
+                    {id: 6, items: [7]},
+                    {id: 7, items: [8]},
+                    {id: 8, items: [9]},
+                    {id: 9, items: [10]}
+                ]);
+            });
+
+            it('with viewport sm', function () {
+                viewport.onChange = function (callback) {
+                    callback('sm');
+                };
+                scope.$digest();
+
+                expect(scope.rows).toEqual([
+                    {id: 0, items: [1, 2]},
+                    {id: 1, items: [3, 4]},
+                    {id: 2, items: [5, 6]},
+                    {id: 3, items: [7, 8]},
+                    {id: 4, items: [9, 10]}
+                ]);
+            });
+
+            it('with viewport md', function () {
+                viewport.onChange = function (callback) {
+                    callback('md');
+                };
+                scope.$digest();
+
+                expect(scope.rows).toEqual([
+                    {id: 0, items: [1, 2, 3]},
+                    {id: 1, items: [4, 5, 6]},
+                    {id: 2, items: [7, 8, 9]},
+                    {id: 3, items: [10]}
+                ]);
+            });
+
+            it('with viewport lg', function () {
+                viewport.onChange = function (callback) {
+                    callback('lg');
+                };
+                scope.$digest();
+
+                expect(scope.rows).toEqual([
+                    {id: 0, items: [1, 2, 3, 4]},
+                    {id: 1, items: [5, 6, 7, 8]},
+                    {id: 2, items: [9, 10]}
+                ]);
+            });
+        });
+
+        it('fallback to 1 column', function () {
+            html = '<div bin-split-in-rows="collection"></div>';
+            element = angular.element(html);
+            $compile(element)(scope);
             scope.$digest();
 
             expect(scope.rows).toEqual([
-                {id: 0, items: [1, 2, 3]},
-                {id: 1, items: [4, 5, 6]},
-                {id: 2, items: [7, 8, 9]},
-                {id: 3, items: [10, 11, 12]},
-                {id: 4, items: [13]}
+                {id: 0, items: [1]},
+                {id: 1, items: [2]},
+                {id: 2, items: [3]},
+                {id: 3, items: [4]},
+                {id: 4, items: [5]},
+                {id: 5, items: [6]},
+                {id: 6, items: [7]},
+                {id: 7, items: [8]},
+                {id: 8, items: [9]},
+                {id: 9, items: [10]}
             ]);
+        });
+
+        describe('on destroy', function () {
+            beforeEach(function () {
+                html = '<div bin-split-in-rows="collection"></div>';
+                element = angular.element(html);
+                $compile(element)(scope);
+                scope.$digest();
+            });
+
+            it('viewport listener is unregistered', function () {
+                scope.$destroy();
+
+                expect(viewportListenerIsDestroyed).toBeTruthy();
+            });
         });
     });
 
