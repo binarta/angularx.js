@@ -188,7 +188,7 @@ describe('angularx', function () {
 
         describe('responsive columns', function () {
             beforeEach(function () {
-                html = '<div bin-split-in-rows="collection" columns-xs="1" columns-sm="2" columns-md="3" columns-lg="4"></div>';
+                html = '<div bin-split-in-rows="collection" col-xs="1" col-sm="2" col-md="3" col-lg="4"></div>';
                 element = angular.element(html);
                 $compile(element)(scope);
             });

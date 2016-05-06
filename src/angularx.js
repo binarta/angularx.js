@@ -90,10 +90,10 @@ function binSplitInRowsDirectiveFactory(viewport) {
     return function (scope, el, attrs) {
         var destroy;
         var columns = attrs.columns;
-        var xs = attrs.columnsXs;
-        var sm = attrs.columnsSm;
-        var md = attrs.columnsMd;
-        var lg = attrs.columnsLg;
+        var xs = attrs.colXs;
+        var sm = attrs.colSm;
+        var md = attrs.colMd;
+        var lg = attrs.colLg;
 
         function splitInRows(items) {
             if (destroy) destroy();
