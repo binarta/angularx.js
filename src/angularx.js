@@ -9,6 +9,9 @@ angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.us
     .directive('binBack', ['$window', BinBackDirectiveFactory])
     .filter('binTruncate', BinTruncateFilter)
     .filter('binStripHtmlTags', BinStripHtmlTagsFilter)
+    .filter('binEncodeUriComponent', ['$window', function ($window) {
+        return $window.encodeURIComponent;
+    }])
     .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
     .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
     .service('binDateController', [BinDateController])

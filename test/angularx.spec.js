@@ -1198,7 +1198,22 @@ describe('angularx', function () {
                 .toEqual('The quick brown fox jumps over the lazy dog');
         });
     });
-    
+
+    describe('binEncodeUri filter', function () {
+        var filter, $window;
+
+        beforeEach(inject(function (binEncodeUriComponentFilter, _$window_) {
+            $window = _$window_;
+            filter = binEncodeUriComponentFilter;
+        }));
+
+        it('encode string', function () {
+            var string = 'test string with some spaces and a http://url';
+
+            expect(filter(string)).toEqual($window.encodeURIComponent(string));
+        });
+    });
+
     describe('binDebounce', function () {
         var $timeout, binDebounce, called;
         var callback = function (){
