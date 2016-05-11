@@ -211,6 +211,7 @@ describe('angularx', function () {
                     {id: 8, items: [9]},
                     {id: 9, items: [10]}
                 ]);
+                expect(scope.columns).toEqual(1);
             });
 
             it('with viewport sm', function () {
@@ -226,6 +227,7 @@ describe('angularx', function () {
                     {id: 3, items: [7, 8]},
                     {id: 4, items: [9, 10]}
                 ]);
+                expect(scope.columns).toEqual(2);
             });
 
             it('with viewport md', function () {
@@ -240,6 +242,7 @@ describe('angularx', function () {
                     {id: 2, items: [7, 8, 9]},
                     {id: 3, items: [10]}
                 ]);
+                expect(scope.columns).toEqual(3);
             });
 
             it('with viewport lg', function () {
@@ -253,6 +256,7 @@ describe('angularx', function () {
                     {id: 1, items: [5, 6, 7, 8]},
                     {id: 2, items: [9, 10]}
                 ]);
+                expect(scope.columns).toEqual(4);
             });
         });
 

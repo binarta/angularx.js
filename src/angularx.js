@@ -107,14 +107,14 @@ function binSplitInRowsDirectiveFactory(viewport) {
                 else if (size == 'md') columnCount = md || sm || xs;
                 else if (size == 'lg') columnCount = lg || md || sm || xs;
                 if (!columnCount) columnCount = columns || 1;
-                columnCount = parseInt(columnCount);
+                scope.columns = parseInt(columnCount);
                 var rows = [];
-                if (columnCount > 0) {
+                if (scope.columns > 0) {
                     var index = 0;
-                    for (var i = 0; i <= (items.length - 1); i = i + columnCount) {
+                    for (var i = 0; i <= (items.length - 1); i = i + scope.columns) {
                         rows.push({
                             id: index++,
-                            items: items.slice(i, i + columnCount)
+                            items: items.slice(i, i + scope.columns)
                         });
                     }
                 }
