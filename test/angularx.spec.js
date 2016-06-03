@@ -831,6 +831,51 @@ describe('angularx', function () {
         });
     });
 
+    describe('binClickOutside', function () {
+        var scope, element, $compile, $rootScope, $document;
+
+        beforeEach(inject(function(_$compile_, _$rootScope_, _$document_) {
+            $compile = _$compile_;
+            $rootScope = _$rootScope_;
+            $document = _$document_;
+
+            scope = $rootScope.$new();
+            scope.execute = jasmine.createSpy('execute');
+
+            element = $compile('<div bin-click-outside="execute"><div id="inside"></div></div>')(scope);
+        }));
+
+        describe('on events', function () {
+            ['click', 'touchstart'].forEach(function (event) {
+                it('if clicked inside element, do nothing', function () {
+                    element.find('#inside').trigger(event);
+
+                    expect(scope.execute).not.toHaveBeenCalled();
+                });
+
+                it('if clicked on element, do nothing', function () {
+                    element.trigger(event);
+
+                    expect(scope.execute).not.toHaveBeenCalled();
+                });
+
+                it('if clicked outside element, execute handler', function () {
+                    $document.trigger(event);
+
+                    expect(scope.execute).toHaveBeenCalled();
+                });
+            });
+        });
+
+        it('remove listener when element is destroyed', function () {
+            scope.$destroy();
+
+            $document.click();
+
+            expect(scope.execute).not.toHaveBeenCalled();
+        });
+    });
+
     describe('OpenCloseMenuFSM', function() {
         var fsm, ctrl, scope;
 

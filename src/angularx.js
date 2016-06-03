@@ -8,6 +8,7 @@
         .directive('binExposeBoxWidth', binExposeBoxWidth)
         .directive('binToggle', binToggle)
         .directive('binBack', ['$window', BinBackDirectiveFactory])
+        .directive('binClickOutside', ['$document', BinClickOutsideDirective])
         .filter('binTruncate', BinTruncateFilter)
         .filter('binStripHtmlTags', BinStripHtmlTagsFilter)
         .filter('binEncodeUriComponent', ['$window', function ($window) {
@@ -343,6 +344,28 @@
             link: function(scope, element) {
                 element.on('click', function() {
                     $window.history.back();
+                });
+            }
+        }
+    }
+
+    function BinClickOutsideDirective($document) {
+        return {
+            restrict: 'A',
+            scope: {
+                callback: '=binClickOutside'
+            },
+            link: function (scope, element) {
+                $document.on('touchstart click', handler);
+
+                function handler(event) {
+                    if (scope.callback && !angular.element.contains(element[0], event.target)) {
+                        scope.$apply(scope.callback());
+                    }
+                }
+
+                scope.$on('$destroy', function () {
+                    $document.off('touchstart click', handler);
                 });
             }
         }
