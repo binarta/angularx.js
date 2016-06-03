@@ -798,48 +798,35 @@ describe('angularx', function () {
     });
 
     describe('binBack', function() {
-        var evt, cb;
-        var sut;
-        var element = {
-            on: function(_evt, _cb) {
-                evt = _evt;
-                cb = _cb;
-            }
-        };
+        var element, $compile, $rootScope;
         var path = 'P';
-        var window = {
-            history: {
+
+        beforeEach(inject(function(_$compile_, _$rootScope_, $window) {
+            $compile = _$compile_;
+            $rootScope = _$rootScope_;
+
+            $window.history = {
                 back: function() {
                     path = 'B';
                 }
-            }
-        };
+            };
+        }));
 
-        beforeEach(function() {
-            sut = BinBackDirectiveFactory(window);
-        });
+        describe('when element is clicked, go to previous path', function () {
+            it('as attribute', function () {
+                element = $compile('<div bin-back></div>')($rootScope);
 
-        it('is exposed as class and attribute', function() {
-            expect(sut.restrict).toEqual('CA');
-        });
+                element.click();
 
-        describe('upon link', function() {
-            beforeEach(function() {
-                sut.link({}, element);
+                expect(path).toEqual('B');
             });
 
-            it('on click event is registered', function() {
-                expect(evt).toEqual('click');
-            });
+            it('as class', function () {
+                element = $compile('<div class="bin-back"></div>')($rootScope);
 
-            describe('and event is fired', function() {
-                beforeEach(function() {
-                    cb();
-                });
+                element.click();
 
-                it('window history goes back one iteration', function() {
-                    expect(path).toEqual('B');
-                })
+                expect(path).toEqual('B');
             });
         });
     });
@@ -850,7 +837,7 @@ describe('angularx', function () {
         beforeEach(inject(function(openCloseMenuFSMFactory, $controller, $rootScope) {
             scope = $rootScope.$new();
             fsm = openCloseMenuFSMFactory({id:'x'});
-            ctrl = $controller(OpenCloseMenuController, {$scope:scope});
+            ctrl = $controller('OpenCloseMenuController', {$scope:scope});
             scope.connect({id:'x'})
         }));
 
