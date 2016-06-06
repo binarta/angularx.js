@@ -1,10 +1,3 @@
-var $ = function () {
-    return {
-        scroll: function () {
-        }
-    }
-};
-
 angular.module('config', [])
     .factory('config', function () {
         return {};
@@ -710,7 +703,7 @@ describe('angularx', function () {
         it('when no predicate then auto complete', inject(function ($rootScope) {
             execute().then(success);
             $rootScope.$apply();
-            expect(success.calls.length).toEqual(1);
+            expect(success.calls.count()).toEqual(1);
         }));
 
         describe('given predicate', function () {
@@ -732,7 +725,7 @@ describe('angularx', function () {
                     $rootScope.$apply();
                     execute().then(success);
                     $rootScope.$apply();
-                    expect(success.calls.length).toEqual(args.resolvesTo ? 1 : 0);
+                    expect(success.calls.count()).toEqual(args.resolvesTo ? 1 : 0);
                 })
             }
 
@@ -752,8 +745,8 @@ describe('angularx', function () {
                     $rootScope.$apply();
                     execute().then(success, rejected);
                     $rootScope.$apply();
-                    expect(rejected.calls.length).toEqual(1);
-                    expect(rejected.calls[0].args[0]).toEqual('timeout');
+                    expect(rejected.calls.count()).toEqual(1);
+                    expect(rejected.calls.first().args[0]).toEqual('timeout');
                 }));
 
                 describe('and timeout', function() {
@@ -782,15 +775,15 @@ describe('angularx', function () {
                         //now.setTime(now.getTime() + 1);
                         $timeout.flush();
                         $timeout.flush();
-                        expect(rejected.calls.length).toEqual(1);
-                        expect(rejected.calls[0].args[0]).toEqual('timeout');
+                        expect(rejected.calls.count()).toEqual(1);
+                        expect(rejected.calls.first().args[0]).toEqual('timeout');
                     }));
 
                     it('when true before timeout reached then execute success handler', inject(function($timeout) {
                         d.resolve();
                         execute().then(success, rejected);
                         $timeout.flush();
-                        expect(success.calls.length).toEqual(1);
+                        expect(success.calls.count()).toEqual(1);
                     }));
                 });
             });

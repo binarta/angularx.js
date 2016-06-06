@@ -3,7 +3,7 @@ module.exports = function(config) {
         basePath:'../',
         frameworks:['jasmine'],
         files:[
-            {pattern:'bower_components/jquery/jquery.js'},
+            {pattern:'bower_components/jquery/dist/jquery.js'},
             {pattern:'bower_components/angular/angular.js'},
             {pattern:'bower_components/angular-mocks/angular-mocks.js'},
             {pattern:'bower_components/thk-notifications-mock/src/notifications.mock.js'},
