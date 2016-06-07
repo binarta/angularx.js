@@ -7,5 +7,8 @@
     "angular-resource": "bower_components/angular-resource/angular-resource.js",
     "angular-cookies": "bower_components/angular-cookies/angular-cookies.js",
     "angular-touch": "bower_components/angular-touch/angular-touch.js"
+  },
+  "default": {
+    "angularx": "bower_components/binarta.angularx/src/angularx.js"
   }
 }
