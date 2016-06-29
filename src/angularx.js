@@ -25,51 +25,7 @@
         .controller('optionsMenuController', ['$scope', 'optionsMenuFactory', 'usecaseAdapterFactory', OptionsMenuController])
         .factory('predicatedBarrier', ['$q', '$timeout', 'binDateController', PredicatedBarrierFactory])
         .factory('binDebounce', ['$timeout', BinDebounceFactory])
-        .run(['topicMessageDispatcher', EndOfPageListener])
-        .config(['$provide', function($provide) {
-            /*
-             * Bugfix for infinite digest loop on location change on IOS 9 using UIWebView
-             * https://github.com/angular/angular.js/issues/12241
-             *
-             * Patch taken from https://gist.github.com/IgorMinar/863acd413e3925bf282c
-             *
-             * UPDATE: this bug is fixed in angular v1.5.0-beta: https://github.com/angular/angular.js/commit/8d39bd8abf423517b5bff70137c2a29e32bff76d
-             */
-            $provide.decorator('$browser', ['$delegate', '$window', function($delegate, $window) {
-                if (isIOS9UIWebView($window.navigator.userAgent)) {
-                    return applyIOS9Shim($delegate);
-                }
-
-                return $delegate;
-
-                function isIOS9UIWebView(userAgent) {
-                    return /(iPhone|iPad|iPod).* OS 9_\d/.test(userAgent) && !/Version\/9\./.test(userAgent);
-                }
-
-                function applyIOS9Shim(browser) {
-                    var pendingLocationUrl = null;
-                    var originalUrlFn= browser.url;
-
-                    browser.url = function() {
-                        if (arguments.length) {
-                            pendingLocationUrl = arguments[0];
-                            return originalUrlFn.apply(browser, arguments);
-                        }
-
-                        return pendingLocationUrl || originalUrlFn.apply(browser, arguments);
-                    };
-
-                    window.addEventListener('popstate', clearPendingLocationUrl, false);
-                    window.addEventListener('hashchange', clearPendingLocationUrl, false);
-
-                    function clearPendingLocationUrl() {
-                        pendingLocationUrl = null;
-                    }
-
-                    return browser;
-                }
-            }]);
-        }]);
+        .run(['topicMessageDispatcher', EndOfPageListener]);
 
     function BinDateController() {
         this.now = function() {
