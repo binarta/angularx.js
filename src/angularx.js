@@ -1,4 +1,4 @@
-(function () {
+(function (angular, jQuery) {
     if (angular.isUndefined(angular.merge)) angular.merge = merge;
     angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.usecase.adapter', 'viewport'])
         .directive('binSplitInRows', ['viewport', binSplitInRowsDirectiveFactory])
@@ -14,8 +14,8 @@
         .filter('binEncodeUriComponent', ['$window', function ($window) {
             return $window.encodeURIComponent;
         }])
-        .service('resourceLoader', ['$rootScope', '$document', '$compile', ResourceLoaderService])
-        .service('binTemplate', ['config', 'activeUserHasPermission', BinTemplateService])
+        .service('resourceLoader', ['$q', '$rootScope', '$document', '$compile', '$log', ResourceLoaderService])
+        .service('binTemplate', ['$log', 'config', 'activeUserHasPermission', BinTemplateService])
         .service('binDateController', [BinDateController])
         .factory('openCloseMenuFSMFactory', [OpenCloseMenuFSMFactoryFactory])
         .controller('OpenCloseMenuController', ['$scope', 'openCloseMenuFSMFactory', OpenCloseMenuController])
@@ -28,22 +28,22 @@
         .run(['topicMessageDispatcher', EndOfPageListener]);
 
     function BinDateController() {
-        this.now = function() {
+        this.now = function () {
             var d = new Date();
-            if(this.lockedAt) d.setTime(this.lockedAt);
+            if (this.lockedAt) d.setTime(this.lockedAt);
             return d;
         };
 
-        this.freeze = function() {
+        this.freeze = function () {
             this.lockedAt = new Date().getTime();
         };
 
-        this.resume = function() {
+        this.resume = function () {
             this.lockedAt = undefined;
         };
 
-        this.jump = function(ms) {
-            if(this.lockedAt) this.lockedAt += ms;
+        this.jump = function (ms) {
+            if (this.lockedAt) this.lockedAt += ms;
         }
     }
 
@@ -87,7 +87,7 @@
                 }
             });
 
-            scope.$on('$destroy', function() {
+            scope.$on('$destroy', function () {
                 if (destroy) destroy();
             });
         }
@@ -189,10 +189,11 @@
         }
     }
 
-    function ResourceLoaderService($rootScope, $document, $compile) {
+    function ResourceLoaderService($q, $rootScope, $document, $compile, $log) {
         var head = $document.find('head');
         var scope = $rootScope;
         scope.resources = [];
+        var promises = [];
 
         function addResourceToDom(href) {
             var element = getElement(href);
@@ -226,18 +227,39 @@
 
         return {
             add: function (href) {
+                $log.warn('Deprecation warning: use "getScript" instead of "add" to load "' + href + '".');
                 if (!scope.resources[href]) addResourceToDom(href);
             },
             addScript: function (href) {
+                $log.warn('Deprecation warning: use "getScript" instead of "addScript" to load "' + href + '".');
                 if (!scope.resources[href]) addScriptResourceToDom(href);
             },
             remove: function (href) {
+                $log.warn('Deprecation warning: "remove" is not supported anymore. Removing "' + href + '".');
                 if (scope.resources[href]) removeResourceFromDom(href);
+            },
+            getScript: function (url) {
+                if (!promises[url]) {
+                    promises[url] = $q.when(jQuery.ajax({
+                        url: url,
+                        dataType: 'script',
+                        cache: true
+                    }));
+
+                    promises[url].then(function () {
+                    }, function () {
+                        promises[url] = undefined;
+                        $log.warn('Failed to load script: ' + url);
+                    });
+                }
+
+                return promises[url];
             }
         };
     }
 
-    function BinTemplateService(config, activeUserHasPermission) {
+    // @deprecated
+    function BinTemplateService($log, config, activeUserHasPermission) {
         this.setTemplateUrl = function (args) {
             var scope = args.scope;
 
@@ -245,6 +267,7 @@
                 var componentsDir = config.componentsDir || 'bower_components';
                 var styling = config.styling ? config.styling + '/' : '';
                 scope.templateUrl = componentsDir + '/binarta.' + args.module + '.angular/template/' + styling + args.name;
+                $log.warn('Deprecation warning: templates are now stored in templateCache. TemplateUrl: "' + scope.templateUrl + '"');
             }
 
             if (args.permission) {
@@ -269,7 +292,7 @@
         function waitFor(args) {
             if (args.timeout != undefined && args.now.getTime() > args.timeout) args.deferred.reject('timeout');
             else {
-                args.predicate().then(args.deferred.resolve, function() {
+                args.predicate().then(args.deferred.resolve, function () {
                     if (args.timeout != undefined)
                         $timeout(function () {
                             args.now = clock.now();
@@ -297,8 +320,8 @@
     function BinBackDirectiveFactory($window) {
         return {
             restrict: 'CA',
-            link: function(scope, element) {
-                element.on('click', function() {
+            link: function (scope, element) {
+                element.on('click', function () {
                     $window.history.back();
                 });
             }
@@ -332,38 +355,40 @@
 
         function ClosedState() {
             this.status = 'closed';
-            this.close = function(fsm) {};
-            this.open = function(fsm) {
+            this.close = function (fsm) {
+            };
+            this.open = function (fsm) {
                 fsm.currentState = new OpenedState();
             };
-            this.toggle = function(fsm) {
+            this.toggle = function (fsm) {
                 this.open(fsm);
             }
         }
 
         function OpenedState() {
             this.status = 'opened';
-            this.open = function(fsm) {};
-            this.close = function(fsm) {
+            this.open = function (fsm) {
+            };
+            this.close = function (fsm) {
                 fsm.currentState = new ClosedState();
             };
-            this.toggle = function(fsm) {
+            this.toggle = function (fsm) {
                 this.close(fsm);
             }
         }
 
         this.currentState = new ClosedState();
 
-        this.status = function() {
+        this.status = function () {
             return self.currentState.status;
         };
-        this.close = function() {
+        this.close = function () {
             self.currentState.close(self);
         };
-        this.open = function() {
+        this.open = function () {
             self.currentState.open(self);
         };
-        this.toggle = function() {
+        this.toggle = function () {
             self.currentState.toggle(self);
         }
     }
@@ -371,25 +396,26 @@
     function OpenCloseMenuFSMFactoryFactory() {
         var fsms = {};
 
-        return function(args) {
-            if(!fsms[args.id]) fsms[args.id] = new OpenCloseMenuFSM();
+        return function (args) {
+            if (!fsms[args.id]) fsms[args.id] = new OpenCloseMenuFSM();
             return fsms[args.id];
         };
     }
 
     function ApplicationMenuFSMFactory(openCloseMenuFSMFactory) {
-        return openCloseMenuFSMFactory({id:'application'});
+        return openCloseMenuFSMFactory({id: 'application'});
     }
 
     function OpenCloseMenuController($scope, openCloseMenuFSMFactory) {
-        var dummy = function() {};
+        var dummy = function () {
+        };
 
         $scope.status = dummy;
         $scope.open = dummy;
         $scope.close = dummy;
         $scope.toggle = dummy;
 
-        $scope.connect = function(args) {
+        $scope.connect = function (args) {
             var fsm = openCloseMenuFSMFactory(args);
 
             $scope.status = fsm.status;
@@ -414,92 +440,103 @@
     function MenuOption(args) {
         var self = this;
 
-        this.id = function() {return args.ctx.id};
-        this.select = function() {
+        this.id = function () {
+            return args.ctx.id
+        };
+        this.select = function () {
             args.menu.select(self);
         }
     }
+
     function OptionsMenu(args) {
         var self = this;
-        var options = (args.options || []).map(function(it) {
-            return new MenuOption({menu:self, ctx:it});
+        var options = (args.options || []).map(function (it) {
+            return new MenuOption({menu: self, ctx: it});
         });
-        var reader = function() {};
-        var writer = function() {};
+        var reader = function () {
+        };
+        var writer = function () {
+        };
         var currentSelection;
 
-        this.options = function() {
+        this.options = function () {
             return options;
         };
 
-        this.currentSelection = function() {
+        this.currentSelection = function () {
             return currentSelection;
         };
 
-        var setCurrentSelectionTo = function(initialSelection) {
-            if(initialSelection) currentSelection = options.reduce(function(p, c) {
+        var setCurrentSelectionTo = function (initialSelection) {
+            if (initialSelection) currentSelection = options.reduce(function (p, c) {
                 return p || (c.id() == initialSelection ? c : p);
             }, undefined);
         };
         setCurrentSelectionTo(args.default);
 
-        this.installIOHandlers = function(args) {
+        this.installIOHandlers = function (args) {
             reader = args.reader;
             writer = args.writer;
             reader({
-                success:setCurrentSelectionTo,
-                notFound:function() {},
-                error:function() {}
+                success: setCurrentSelectionTo,
+                notFound: function () {
+                },
+                error: function () {
+                }
             });
         };
 
-        this.select = function(option) {
+        this.select = function (option) {
             currentSelection = option;
         };
 
-        this.saveCurrentSelection = function(response) {
+        this.saveCurrentSelection = function (response) {
             writer(currentSelection.id(), response);
         }
     }
+
     function OptionsMenuFactoryProvider() {
         var config = {};
         var menus = {};
 
-        this.installOptions = function(args) {
+        this.installOptions = function (args) {
             config[args.id] = args;
         };
 
-        this.$get = [function() {
-            return function(args) {
-                if(!menus[args.id]) menus[args.id] = new OptionsMenu(config[args.id] || {});
+        this.$get = [function () {
+            return function (args) {
+                if (!menus[args.id]) menus[args.id] = new OptionsMenu(config[args.id] || {});
                 return menus[args.id];
             }
         }]
     }
+
     function OptionsMenuController($scope, optionsMenuFactory, usecaseAdapterFactory) {
-        var dummy = function() {return {}};
+        var dummy = function () {
+            return {}
+        };
         var originalSelection, saved;
         var self = this;
 
-        $scope.init = function(args) {
+        $scope.init = function (args) {
             self.ctx = args;
         };
 
         $scope.options = dummy;
         $scope.currentSelection = dummy;
-        $scope.pristine = function() {
+        $scope.pristine = function () {
             return !originalSelection;
         };
-        $scope.saved = function() {
+        $scope.saved = function () {
             return saved;
         };
 
-        $scope.connect = function(args) {
+        $scope.connect = function (args) {
             var menu = optionsMenuFactory(args);
             $scope.options = menu.options;
             $scope.currentSelection = menu.currentSelection;
-            $scope.saveCurrentSelection = function() {
-                menu.saveCurrentSelection(usecaseAdapterFactory($scope, function() {
+            $scope.saveCurrentSelection = function () {
+                menu.saveCurrentSelection(usecaseAdapterFactory($scope, function () {
                     originalSelection = undefined;
                     saved = true;
                     if (self.ctx && self.ctx.success) self.ctx.success();
@@ -507,17 +544,18 @@
             }
         };
 
-        $scope.select = function(option) {
+        $scope.select = function (option) {
             saved = undefined;
-            if(!originalSelection) originalSelection = $scope.currentSelection();
-            else if(option.id() == originalSelection.id()) originalSelection = undefined;
+            if (!originalSelection) originalSelection = $scope.currentSelection();
+            else if (option.id() == originalSelection.id()) originalSelection = undefined;
             option.select();
         }
     }
 
-    function merge(dst){
+    function merge(dst) {
         var slice = [].slice;
         var isArray = Array.isArray;
+
         function baseExtend(dst, objs, deep) {
             for (var i = 0, ii = objs.length; i < ii; ++i) {
                 var obj = objs[i];
@@ -537,6 +575,7 @@
 
             return dst;
         }
+
         return baseExtend(dst, slice.call(arguments, 1), true);
     }
 
@@ -565,7 +604,7 @@
                         }
 
                         var reversedChildNodes = element.contents().get().reverse();
-                        for(var i = 0; i <= reversedChildNodes.length; i++) {
+                        for (var i = 0; i <= reversedChildNodes.length; i++) {
                             var childNode = reversedChildNodes[i];
                             var childElement = angular.element(childNode);
                             var childTextLength = childElement.text().length;
@@ -595,7 +634,7 @@
 
     function BinStripHtmlTagsFilter() {
         return function (value) {
-            if (value) return value.replace(/(<([^>]+)>)/ig,' ').replace(/\s+/g,' ').trim();
+            if (value) return value.replace(/(<([^>]+)>)/ig, ' ').replace(/\s+/g, ' ').trim();
         }
     }
 
@@ -611,4 +650,4 @@
             }
         };
     }
-})();
+})(angular, jQuery);

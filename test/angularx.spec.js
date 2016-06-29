@@ -492,14 +492,85 @@ describe('angularx', function () {
     });
 
     describe('resourceLoader service', function () {
-        var loader, document, scope;
+        var loader, document, scope, ajaxDeferred, logger;
 
-        beforeEach(inject(function ($document, resourceLoader, $rootScope) {
+        beforeEach(inject(function ($document, resourceLoader, $rootScope, $q, $log) {
             $document.find('head').empty();
             document = $document;
             scope = $rootScope;
             loader = resourceLoader;
+            logger = $log;
+
+            ajaxDeferred = $q.defer();
+            jQuery.ajax = jasmine.createSpy('ajax').and.returnValue(ajaxDeferred.promise);
         }));
+
+        describe('on getScript', function () {
+            var loaded, failed;
+
+            beforeEach(function () {
+                loaded = false;
+                failed = false;
+
+                loader.getScript('test.js').then(function () {
+                    loaded = true;
+                }, function () {
+                    failed = true;
+                });
+            });
+
+            it('do a cached ajax request for the script', function () {
+                expect(jQuery.ajax).toHaveBeenCalledWith({
+                    url: 'test.js',
+                    dataType: 'script',
+                    cache: true
+                });
+            });
+
+            describe('on success', function () {
+                beforeEach(function () {
+                    ajaxDeferred.resolve();
+                    scope.$digest();
+                });
+
+                it('promise is resolved', function () {
+                    expect(loaded).toBeTruthy();
+                });
+
+                it('getting the same script again does not do new request', function () {
+                    loader.getScript('test.js');
+
+                    expect(jQuery.ajax.calls.count()).toEqual(1);
+                });
+
+                it('getting another script does new request', function () {
+                    loader.getScript('new.js');
+
+                    expect(jQuery.ajax.calls.count()).toEqual(2);
+                });
+            });
+
+            describe('on failed', function () {
+                beforeEach(function () {
+                    ajaxDeferred.reject();
+                    scope.$digest();
+                });
+
+                it('promise is rejected', function () {
+                    expect(failed).toBeTruthy();
+                });
+
+                it('log a warning', function () {
+                    expect(logger.warn.logs[0]).toEqual(['Failed to load script: test.js']);
+                });
+
+                it('getting the same script again does new request', function () {
+                    loader.getScript('test.js');
+
+                    expect(jQuery.ajax.calls.count()).toEqual(2);
+                });
+            });
+        });
 
         it('service uses a new child scope', function () {
             expect(scope.resources).toEqual([]);
