@@ -896,12 +896,13 @@ describe('angularx', function () {
     });
 
     describe('binClickOutside', function () {
-        var scope, element, $compile, $rootScope, $document;
+        var scope, element, $compile, $rootScope, $document, $timeout;
 
-        beforeEach(inject(function(_$compile_, _$rootScope_, _$document_) {
+        beforeEach(inject(function(_$compile_, _$rootScope_, _$document_, _$timeout_) {
             $compile = _$compile_;
             $rootScope = _$rootScope_;
             $document = _$document_;
+            $timeout = _$timeout_;
 
             scope = $rootScope.$new();
             scope.execute = jasmine.createSpy('execute');
@@ -914,17 +915,24 @@ describe('angularx', function () {
                 it('if clicked inside element, do nothing', function () {
                     element.find('#inside').trigger(event);
 
+                    $timeout.verifyNoPendingTasks();
+
                     expect(scope.execute).not.toHaveBeenCalled();
                 });
 
                 it('if clicked on element, do nothing', function () {
                     element.trigger(event);
 
+                    $timeout.verifyNoPendingTasks();
+
                     expect(scope.execute).not.toHaveBeenCalled();
                 });
 
-                it('if clicked outside element, execute handler', function () {
+                it('if clicked outside element, execute handler. ' +
+                    'Handler is wrapped inside $timeout to execute it safely in a new digest cycle.', function () {
                     $document.trigger(event);
+
+                    $timeout.flush();
 
                     expect(scope.execute).toHaveBeenCalled();
                 });

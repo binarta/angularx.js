@@ -8,7 +8,7 @@
         .directive('binExposeBoxWidth', binExposeBoxWidth)
         .directive('binToggle', binToggle)
         .directive('binBack', ['$window', BinBackDirectiveFactory])
-        .directive('binClickOutside', ['$document', BinClickOutsideDirective])
+        .directive('binClickOutside', ['$document', '$timeout', BinClickOutsideDirective])
         .filter('binTruncate', BinTruncateFilter)
         .filter('binStripHtmlTags', BinStripHtmlTagsFilter)
         .filter('binEncodeUriComponent', ['$window', function ($window) {
@@ -328,7 +328,7 @@
         }
     }
 
-    function BinClickOutsideDirective($document) {
+    function BinClickOutsideDirective($document, $timeout) {
         return {
             restrict: 'A',
             scope: {
@@ -338,9 +338,7 @@
                 $document.on('touchstart click', handler);
 
                 function handler(event) {
-                    if (scope.callback && !angular.element.contains(element[0], event.target)) {
-                        scope.$apply(scope.callback());
-                    }
+                    if (scope.callback && !angular.element.contains(element[0], event.target)) $timeout(scope.callback);
                 }
 
                 scope.$on('$destroy', function () {
