@@ -15,7 +15,7 @@
     "binarta.notifications.angular": "1.*.*",
     "binarta.usecase.adapter.angular": "0.*.*",
     "binarta.config.angular": "0.*.*",
-    "binarta.checkpoint.angular": "0.*.*",
+    "binarta.checkpoint.angular": "1.*.*",
     "binarta.viewport.angular": "0.*.*"
   },
   "devDependencies": {
