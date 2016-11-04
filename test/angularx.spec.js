@@ -948,6 +948,28 @@ describe('angularx', function () {
         });
     });
 
+    describe('autofocus directive', function () {
+        var scope, element, $timeout;
+
+        beforeEach(inject(function ($compile, $rootScope, _$timeout_) {
+            $timeout = _$timeout_;
+            scope = $rootScope.$new();
+            element = angular.element('<div autofocus></div>');
+            element[0].focus = jasmine.createSpy('focus');
+            $compile(element)(scope);
+        }));
+
+        describe('after timeout', function () {
+            beforeEach(function () {
+                $timeout.flush();
+            });
+
+            it('set focus on element', function () {
+                expect(element[0].focus).toHaveBeenCalled();
+            });
+        });
+    });
+
     describe('OpenCloseMenuFSM', function() {
         var fsm, ctrl, scope;
 

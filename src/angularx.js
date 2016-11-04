@@ -9,6 +9,7 @@
         .directive('binToggle', binToggle)
         .directive('binBack', ['$window', BinBackDirectiveFactory])
         .directive('binClickOutside', ['$document', '$timeout', BinClickOutsideDirective])
+        .directive('autofocus', ['$timeout', AutofocusDirective])
         .filter('binTruncate', BinTruncateFilter)
         .filter('binStripHtmlTags', BinStripHtmlTagsFilter)
         .filter('binEncodeUriComponent', ['$window', function ($window) {
@@ -343,6 +344,17 @@
 
                 scope.$on('$destroy', function () {
                     $document.off('touchstart click', handler);
+                });
+            }
+        }
+    }
+
+    function AutofocusDirective($timeout) {
+        return {
+            restrict: 'A',
+            link : function(scope, el) {
+                $timeout(function() {
+                    el[0].focus();
                 });
             }
         }
