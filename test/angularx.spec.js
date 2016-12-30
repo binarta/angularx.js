@@ -907,7 +907,7 @@ describe('angularx', function () {
             scope = $rootScope.$new();
             scope.execute = jasmine.createSpy('execute');
 
-            element = $compile('<div bin-click-outside="execute"><div id="inside"></div></div>')(scope);
+            element = $compile('<div bin-click-outside="execute()"><div id="inside"></div></div>')(scope);
         }));
 
         describe('on click event', function () {

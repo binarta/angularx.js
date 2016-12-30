@@ -333,7 +333,7 @@
         return {
             restrict: 'A',
             scope: {
-                callback: '=binClickOutside'
+                callback: '&binClickOutside'
             },
             link: function (scope, element) {
                 $document.on('click', handler);
