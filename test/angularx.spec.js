@@ -910,32 +910,32 @@ describe('angularx', function () {
             element = $compile('<div bin-click-outside="execute"><div id="inside"></div></div>')(scope);
         }));
 
-        describe('on events', function () {
-            ['click', 'touchstart'].forEach(function (event) {
-                it('if clicked inside element, do nothing', function () {
-                    element.find('#inside').trigger(event);
+        describe('on click event', function () {
+            var event = 'click';
 
-                    $timeout.verifyNoPendingTasks();
+            it('if clicked inside element, do nothing', function () {
+                element.find('#inside').trigger(event);
 
-                    expect(scope.execute).not.toHaveBeenCalled();
-                });
+                $timeout.verifyNoPendingTasks();
 
-                it('if clicked on element, do nothing', function () {
-                    element.trigger(event);
+                expect(scope.execute).not.toHaveBeenCalled();
+            });
 
-                    $timeout.verifyNoPendingTasks();
+            it('if clicked on element, do nothing', function () {
+                element.trigger(event);
 
-                    expect(scope.execute).not.toHaveBeenCalled();
-                });
+                $timeout.verifyNoPendingTasks();
 
-                it('if clicked outside element, execute handler. ' +
-                    'Handler is wrapped inside $timeout to execute it safely in a new digest cycle.', function () {
-                    $document.trigger(event);
+                expect(scope.execute).not.toHaveBeenCalled();
+            });
 
-                    $timeout.flush();
+            it('if clicked outside element, execute handler. ' +
+                'Handler is wrapped inside $timeout to execute it safely in a new digest cycle.', function () {
+                $document.trigger(event);
 
-                    expect(scope.execute).toHaveBeenCalled();
-                });
+                $timeout.flush();
+
+                expect(scope.execute).toHaveBeenCalled();
             });
         });
 

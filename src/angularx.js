@@ -336,7 +336,7 @@
                 callback: '=binClickOutside'
             },
             link: function (scope, element) {
-                $document.on('touchstart click', handler);
+                $document.on('click', handler);
 
                 function handler(event) {
                     if (scope.callback && !angular.element.contains(element[0], event.target)) $timeout(scope.callback);
