@@ -16,7 +16,6 @@ angular.module('checkpoint', [])
     });
 
 describe('angularx', function () {
-
     beforeEach(module('angularx'));
 
     describe('binSplitInRows directive', function () {
@@ -966,6 +965,76 @@ describe('angularx', function () {
 
             it('set focus on element', function () {
                 expect(element[0].focus).toHaveBeenCalled();
+            });
+        });
+    });
+
+    describe('ngClickConfirm directive', function () {
+        var element, scope, modal;
+
+        beforeEach(inject(function($rootScope, $compile, binModal) {
+            modal = binModal;
+            element = $compile('<div ng-click-confirm="test()"></div>')($rootScope);
+            scope = element.scope();
+            scope.test = jasmine.createSpy('spy');
+        }));
+
+        describe('when element is clicked', function () {
+            beforeEach(function () {
+                element[0].click();
+            });
+
+            it('modal is opened', function () {
+                expect(modal.open).toHaveBeenCalledWith({
+                    templateUrl: 'bin-click-confirm.html',
+                    $ctrl: {
+                        message: 'Are you sure?',
+                        yes: jasmine.any(Function),
+                        no: jasmine.any(Function)
+                    }
+                });
+            });
+
+            it('no handler, modal is closed', function () {
+                modal.open.calls.mostRecent().args[0].$ctrl.no();
+                expect(modal.close).toHaveBeenCalled();
+            });
+
+            describe('yes handler', function () {
+                beforeEach(function () {
+                    modal.open.calls.mostRecent().args[0].$ctrl.yes();
+                });
+
+                it('click handler is executed', function () {
+                    expect(scope.test).toHaveBeenCalled();
+                });
+
+                it('modal is closed', function () {
+                    expect(modal.close).toHaveBeenCalled();
+                });
+            });
+        });
+
+        describe('when confirm message is given', function () {
+            beforeEach(inject(function ($compile, $rootScope) {
+                element = $compile('<div ng-click-confirm="test()" confirm-message="message"></div>')($rootScope);
+            }));
+
+            describe('when element is clicked', function () {
+                beforeEach(function () {
+                    element[0].click();
+                });
+
+                it('modal is opened', function () {
+                    expect(modal.open).toHaveBeenCalledWith({
+                        templateUrl: 'bin-click-confirm.html',
+                        $ctrl: {
+                            message: 'message',
+                            yes: jasmine.any(Function),
+                            no: jasmine.any(Function)
+                        }
+                    });
+                });
             });
         });
     });

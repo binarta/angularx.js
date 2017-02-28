@@ -1,6 +1,6 @@
 (function (angular, jQuery) {
     if (angular.isUndefined(angular.merge)) angular.merge = merge;
-    angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.usecase.adapter', 'viewport'])
+    angular.module('angularx', ['notifications', 'config', 'checkpoint', 'angular.usecase.adapter', 'viewport', 'ui.bootstrap.ex'])
         .directive('binSplitInRows', ['viewport', binSplitInRowsDirectiveFactory])
         .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
         .directive('binGroupBy', binGroupByDirectiveFactory)
@@ -10,6 +10,7 @@
         .directive('binBack', ['$window', BinBackDirectiveFactory])
         .directive('binClickOutside', ['$document', '$timeout', BinClickOutsideDirective])
         .directive('autofocus', ['$timeout', AutofocusDirective])
+        .directive('ngClickConfirm', ['binModal', ngClickConfirmDirectiveFactory])
         .filter('binTruncate', BinTruncateFilter)
         .filter('binStripHtmlTags', BinStripHtmlTagsFilter)
         .filter('binEncodeUriComponent', ['$window', function ($window) {
@@ -356,6 +357,39 @@
                 $timeout(function() {
                     el[0].focus();
                 });
+            }
+        }
+    }
+
+    function ngClickConfirmDirectiveFactory(modal) {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                element.bind('click', function() {
+                    scope.$apply(openModal);
+                });
+
+                function openModal() {
+                    modal.open({
+                        templateUrl: 'bin-click-confirm.html',
+                        $ctrl: {
+                            message: getMessage(),
+                            yes: function () {
+                                executeClickHandler();
+                                modal.close();
+                            },
+                            no: modal.close
+                        }
+                    });
+                }
+
+                function executeClickHandler() {
+                    scope.$eval(attrs.ngClickConfirm);
+                }
+
+                function getMessage() {
+                    return attrs.confirmMessage || 'Are you sure?';
+                }
             }
         }
     }
