@@ -9,6 +9,7 @@
     "angular-touch": "bower_components/angular-touch/angular-touch.js"
   },
   "default": {
-    "angularx": "bower_components/binarta.angularx/src/angularx.js"
+    "angularx": "bower_components/binarta.angularx/src/angularx.js",
+    "angularx-templates": "bower_components/binarta.angularx/src/angularx-tpls-bootstrap3.js"
   }
 }
