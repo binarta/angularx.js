@@ -1,6 +1,6 @@
 (function (angular, jQuery) {
     if (angular.isUndefined(angular.merge)) angular.merge = merge;
-    angular.module('angularx', ['angularx.templates', 'notifications', 'config', 'checkpoint', 'angular.usecase.adapter', 'viewport', 'ui.bootstrap.ex'])
+    angular.module('angularx', ['angularx.templates', 'notifications', 'config', 'checkpoint', 'angular.usecase.adapter', 'viewport', 'bootstrap.ex'])
         .directive('binSplitInRows', ['viewport', binSplitInRowsDirectiveFactory])
         .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
         .directive('binGroupBy', binGroupByDirectiveFactory)
