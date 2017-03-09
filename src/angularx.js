@@ -16,6 +16,7 @@
         .filter('binEncodeUriComponent', ['$window', function ($window) {
             return $window.encodeURIComponent;
         }])
+        .filter('binSanitizeUrl', ['$location', sanitizeUrlFilter])
         .service('resourceLoader', ['$q', '$rootScope', '$document', '$compile', '$log', ResourceLoaderService])
         .service('binTemplate', ['$log', 'config', 'activeUserHasPermission', BinTemplateService])
         .service('binDateController', [BinDateController])
@@ -693,5 +694,42 @@
                 }, delay || 200);
             }
         };
+    }
+
+    function sanitizeUrlFilter($location) {
+        return function (value) {
+            if (value) return sanitize(value);
+        };
+
+        function sanitize(url) {
+            if (url.substr(0,1) !== '/') {
+                if (!hasProtocol(url)) url = 'http://' + url;
+                var parts = getParts(url);
+                if (isRelative(parts.domain)) url = parts.path;
+            }
+            return stripHashbang(url);
+        }
+
+        function isRelative(domain) {
+            if (angular.isUndefined(domain)) return true;
+            return $location.absUrl().substr(0, domain.length) === domain;
+        }
+
+        function hasProtocol(link) {
+            return link.search(/^[a-zA-Z]+:\/\//) != -1;
+        }
+
+        function getParts(link) {
+            var parts = link.match(/^(([a-zA-Z]+:\/\/)[^\/]+)(.*)$/) || [];
+            return {
+                protocol: parts[2],
+                domain: parts[1],
+                path: parts[3] || '/'
+            }
+        }
+
+        function stripHashbang(link) {
+            return link.replace(/[\/]?#!/, '');
+        }
     }
 })(angular, jQuery);
