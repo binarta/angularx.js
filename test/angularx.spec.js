@@ -910,39 +910,64 @@ describe('angularx', function () {
         }));
 
         describe('on click event', function () {
-            var event = 'click';
-
             it('if clicked inside element, do nothing', function () {
-                element.find('#inside').trigger(event);
-
+                element.find('#inside').trigger('click');
                 $timeout.verifyNoPendingTasks();
-
                 expect(scope.execute).not.toHaveBeenCalled();
             });
 
             it('if clicked on element, do nothing', function () {
-                element.trigger(event);
-
+                element.trigger('click');
                 $timeout.verifyNoPendingTasks();
-
                 expect(scope.execute).not.toHaveBeenCalled();
             });
 
             it('if clicked outside element, execute handler. ' +
                 'Handler is wrapped inside $timeout to execute it safely in a new digest cycle.', function () {
-                $document.trigger(event);
-
+                $document.trigger('click');
                 $timeout.flush();
-
                 expect(scope.execute).toHaveBeenCalled();
+            });
+        });
+
+        describe('when touch device', function () {
+            it('if tapped inside element, do nothing', function () {
+                element.find('#inside').trigger('touchstart');
+                element.find('#inside').trigger('touchend');
+                $timeout.verifyNoPendingTasks();
+                expect(scope.execute).not.toHaveBeenCalled();
+            });
+
+            it('if tapped on element, do nothing', function () {
+                element.trigger('touchstart');
+                element.trigger('touchend');
+                $timeout.verifyNoPendingTasks();
+                expect(scope.execute).not.toHaveBeenCalled();
+            });
+
+            it('if tapped outside element, execute handler', function () {
+                $document.trigger('touchstart');
+                $document.trigger('touchend');
+                $timeout.flush();
+                expect(scope.execute).toHaveBeenCalled();
+            });
+
+            it('when moved touch started, do nothing', function () {
+                $document.trigger('touchstart');
+                $document.trigger('touchmove');
+                $document.trigger('touchend');
+                $timeout.verifyNoPendingTasks();
+                expect(scope.execute).not.toHaveBeenCalled();
             });
         });
 
         it('remove listener when element is destroyed', function () {
             scope.$destroy();
-
-            $document.click();
-
+            $document.trigger('click');
+            $document.trigger('touchstart');
+            $document.trigger('touchmove');
+            $document.trigger('touchend');
+            $timeout.verifyNoPendingTasks();
             expect(scope.execute).not.toHaveBeenCalled();
         });
     });

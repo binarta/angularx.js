@@ -338,14 +338,31 @@
                 callback: '&binClickOutside'
             },
             link: function (scope, element) {
-                $document.on('click', handler);
+                var click = 'click',
+                    touchStart = 'touchstart',
+                    touchEnd = 'touchend',
+                    touchMove = 'touchmove',
+                    events = click + ' ' + touchStart + ' ' + touchEnd + ' ' + touchMove,
+                    moved = false,
+                    isTouchDevice = false;
+
+                $document.on(events, handler);
 
                 function handler(event) {
+                    if (event.type === touchStart) {
+                        isTouchDevice = true;
+                        moved = false;
+                    }
+                    if (event.type === touchMove) moved = true;
+                    if ((event.type === touchEnd && !moved) || (event.type === click && !isTouchDevice)) execute(event);
+                }
+
+                function execute(event) {
                     if (scope.callback && !angular.element.contains(element[0], event.target)) $timeout(scope.callback);
                 }
 
                 scope.$on('$destroy', function () {
-                    $document.off('touchstart click', handler);
+                    $document.off(events, handler);
                 });
             }
         }
