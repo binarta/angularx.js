@@ -1,0 +1,24 @@
+{
+  "msgs": {
+    "nl": {
+      "link.url.label": "Vul in geldige url in:",
+      "link.text.label": "Zichtbare tekst:",
+      "link.target.label": "Open in een nieuw tabblad"
+    },
+    "en": {
+      "link.url.label": "Enter a valid url:",
+      "link.text.label": "Text to display:",
+      "link.target.label": "Open in a new tab"
+    },
+    "fr": {
+      "link.url.label": "Entrez une url valide:",
+      "link.text.label": "Texte à afficher:",
+      "link.target.label": "Ouvrir dans un nouvel onglet"
+    },
+    "de": {
+      "link.url.label": "Enter a valid url:",
+      "link.text.label": "Text to display:",
+      "link.target.label": "Open in a new tab"
+    }
+  }
+}

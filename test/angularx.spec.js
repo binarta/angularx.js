@@ -1519,4 +1519,173 @@ describe('angularx', function () {
             });
         });
     });
+
+    describe('binLink service', function () {
+        var sut, editModeRendererMock, onSubmitSpy, onRemoveSpy;
+
+        beforeEach(inject(function (binLink, editModeRenderer) {
+            editModeRendererMock = editModeRenderer;
+            onSubmitSpy = jasmine.createSpy('submit');
+            onRemoveSpy = jasmine.createSpy('remove');
+            sut = binLink;
+        }));
+
+        describe('on open', function () {
+            beforeEach(function () {
+                sut.open({
+                    onSubmit: onSubmitSpy,
+                    onRemove: onRemoveSpy
+                });
+            });
+
+            it('edit-mode renderer is opened', function () {
+                expect(editModeRendererMock.open).toHaveBeenCalledWith({
+                    templateUrl: 'bin-link-edit.html',
+                    id: 'popup',
+                    scope: jasmine.any(Object)
+                });
+            });
+
+            describe('with edit-mode renderer scope', function () {
+                var scope;
+
+                beforeEach(function () {
+                    scope = editModeRendererMock.open.calls.mostRecent().args[0].scope;
+                });
+
+                it('default link values', function () {
+                    expect(scope.link).toEqual({
+                        href: 'http://',
+                        text: '',
+                        target: true
+                    });
+                });
+
+                it('text field is not visible', function () {
+                    expect(scope.allowText).toBeFalsy();
+                });
+
+                it('remove is not available', function () {
+                    expect(scope.remove).toBeUndefined();
+                });
+
+                it('on cancel, close the renderer', function () {
+                    scope.cancel();
+                    expect(editModeRendererMock.close).toHaveBeenCalled();
+                });
+
+                describe('on submit', function () {
+                    beforeEach(function () {
+                        scope.submit();
+                    });
+
+                    it('is working', function () {
+                        expect(scope.working).toBeTruthy();
+                        expect(scope.submitting).toBeTruthy();
+                        expect(scope.removing).toBeFalsy();
+                    });
+
+                    it('onSubmit callback is executed', function () {
+                        expect(onSubmitSpy).toHaveBeenCalledWith({
+                            href: '/',
+                            text: '',
+                            target: '_blank',
+                            success: jasmine.any(Function),
+                            error: jasmine.any(Function)
+                        });
+                    });
+
+                    it('on success', function () {
+                        onSubmitSpy.calls.mostRecent().args[0].success();
+                        expect(editModeRendererMock.close).toHaveBeenCalledWith({id: 'popup'});
+                    });
+
+                    it('on error', function () {
+                        onSubmitSpy.calls.mostRecent().args[0].error();
+                        expect(scope.violation).toBeTruthy();
+                        expect(scope.working).toBeFalsy();
+                        expect(scope.submitting).toBeFalsy();
+                        expect(scope.removing).toBeFalsy();
+                    });
+                });
+            });
+        });
+
+        describe('on open with values', function () {
+            beforeEach(function () {
+                sut.open({
+                    href: 'test',
+                    text: 'foo',
+                    allowText: true,
+                    target: '_blank',
+                    onSubmit: onSubmitSpy,
+                    onRemove: onRemoveSpy
+                });
+            });
+
+            it('edit-mode renderer is opened', function () {
+                expect(editModeRendererMock.open).toHaveBeenCalledWith({
+                    templateUrl: 'bin-link-edit.html',
+                    id: 'popup',
+                    scope: jasmine.any(Object)
+                });
+            });
+
+            describe('with edit-mode renderer scope', function () {
+                var scope;
+
+                beforeEach(function () {
+                    scope = editModeRendererMock.open.calls.mostRecent().args[0].scope;
+                });
+
+                it('link values', function () {
+                    expect(scope.link).toEqual({
+                        href: 'test',
+                        text: 'foo',
+                        target: true
+                    });
+                });
+
+                it('text field is visible', function () {
+                    expect(scope.allowText).toBeTruthy();
+                });
+
+                it('remove is available', function () {
+                    expect(scope.remove).toBeDefined();
+                });
+
+                describe('on remove', function () {
+                    beforeEach(function () {
+                        scope.remove();
+                    });
+
+                    it('is working', function () {
+                        expect(scope.working).toBeTruthy();
+                        expect(scope.removing).toBeTruthy();
+                        expect(scope.submitting).toBeFalsy();
+                    });
+
+                    it('onRemove callback is executed', function () {
+                        expect(onRemoveSpy).toHaveBeenCalledWith({
+                            success: jasmine.any(Function),
+                            error: jasmine.any(Function)
+                        });
+                    });
+
+                    it('on success', function () {
+                        onRemoveSpy.calls.mostRecent().args[0].success();
+                        expect(editModeRendererMock.close).toHaveBeenCalledWith({id: 'popup'});
+                    });
+
+                    it('on error', function () {
+                        onRemoveSpy.calls.mostRecent().args[0].error();
+                        expect(scope.violation).toBeTruthy();
+                        expect(scope.working).toBeFalsy();
+                        expect(scope.submitting).toBeFalsy();
+                        expect(scope.removing).toBeFalsy();
+                    });
+                });
+            });
+        });
+    });
 });

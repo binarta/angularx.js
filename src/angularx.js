@@ -1,6 +1,6 @@
 (function (angular, jQuery) {
     if (angular.isUndefined(angular.merge)) angular.merge = merge;
-    angular.module('angularx', ['angularx.templates', 'notifications', 'config', 'checkpoint', 'angular.usecase.adapter', 'viewport', 'bootstrap.ex'])
+    angular.module('angularx', ['angularx.templates', 'notifications', 'config', 'checkpoint', 'angular.usecase.adapter', 'viewport', 'bootstrap.ex', 'toggle.edit.mode'])
         .directive('binSplitInRows', ['viewport', binSplitInRowsDirectiveFactory])
         .directive('binSplitInColumns', binSplitInColumnsDirectiveFactory)
         .directive('binGroupBy', binGroupByDirectiveFactory)
@@ -28,6 +28,7 @@
         .controller('optionsMenuController', ['$scope', 'optionsMenuFactory', 'usecaseAdapterFactory', OptionsMenuController])
         .factory('predicatedBarrier', ['$q', '$timeout', 'binDateController', PredicatedBarrierFactory])
         .factory('binDebounce', ['$timeout', BinDebounceFactory])
+        .service('binLink', ['$rootScope', '$filter', 'editModeRenderer', BinLinkService])
         .run(['topicMessageDispatcher', EndOfPageListener]);
 
     function BinDateController() {
@@ -748,5 +749,74 @@
         function stripHashbang(link) {
             return link.replace(/[\/]?#!/, '');
         }
+    }
+
+    function BinLinkService($rootScope, $filter, editModeRenderer) {
+        this.open = function (args) {
+            var scope = $rootScope.$new();
+            scope.link = {
+                href: args.href || 'http://',
+                text: args.text || '',
+                target: args.target === undefined ? true : args.target === '_blank'
+            };
+            scope.allowText = args.allowText;
+            scope.cancel = editModeRenderer.close;
+
+            scope.submit = function () {
+                reset();
+                startWorking('submit');
+                scope.link.href = $filter('binSanitizeUrl')(scope.link.href);
+
+                args.onSubmit({
+                    href: scope.link.href || '',
+                    text: scope.link.text || '',
+                    target: scope.link.target ? '_blank' : '',
+                    success: onSuccess,
+                    error: onError
+                });
+            };
+
+            if (args.onRemove && args.href) {
+                scope.remove = function () {
+                    reset();
+                    startWorking('remove');
+                    args.onRemove({
+                        success: onSuccess,
+                        error: onError
+                    });
+                };
+            }
+
+            function reset() {
+                scope.violation = false;
+            }
+
+            function startWorking(ctx) {
+                scope.working = true;
+                scope.submitting = ctx === 'submit';
+                scope.removing = ctx === 'remove';
+            }
+
+            function stopWorking() {
+                scope.working = false;
+                scope.submitting = false;
+                scope.removing = false;
+            }
+
+            function onSuccess() {
+                editModeRenderer.close({id: 'popup'});
+            }
+
+            function onError() {
+                scope.violation = true;
+                stopWorking();
+            }
+
+            editModeRenderer.open({
+                templateUrl: 'bin-link-edit.html',
+                id: 'popup',
+                scope: scope
+            });
+        };
     }
 })(angular, jQuery);
