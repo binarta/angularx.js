@@ -758,7 +758,7 @@
             scope.link = {
                 href: args.href || 'http://',
                 text: args.text || '',
-                target: args.target === undefined ? true : args.target === '_blank'
+                target: args.target == undefined ? true : args.target === '_blank'
             };
             scope.allowText = args.allowText;
             scope.cancel = function () {

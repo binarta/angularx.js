@@ -1687,5 +1687,39 @@ describe('angularx', function () {
                 });
             });
         });
+
+        describe('when target is null', function () {
+            beforeEach(function () {
+                sut.open({
+                    target: null,
+                    onSubmit: onSubmitSpy,
+                    onRemove: onRemoveSpy
+                });
+            });
+
+            it('edit-mode renderer is opened', function () {
+                expect(editModeRendererMock.open).toHaveBeenCalledWith({
+                    templateUrl: 'bin-link-edit.html',
+                    id: 'popup',
+                    scope: jasmine.any(Object)
+                });
+            });
+
+            describe('with edit-mode renderer scope', function () {
+                var scope;
+
+                beforeEach(function () {
+                    scope = editModeRendererMock.open.calls.mostRecent().args[0].scope;
+                });
+
+                it('default link values', function () {
+                    expect(scope.link).toEqual({
+                        href: 'http://',
+                        text: '',
+                        target: true
+                    });
+                });
+            });
+        });
     });
 });
