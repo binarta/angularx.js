@@ -753,6 +753,7 @@
 
     function BinLinkService($rootScope, $filter, editModeRenderer) {
         this.open = function (args) {
+            var rendererId = 'popup';
             var scope = $rootScope.$new();
             scope.link = {
                 href: args.href || 'http://',
@@ -760,7 +761,9 @@
                 target: args.target === undefined ? true : args.target === '_blank'
             };
             scope.allowText = args.allowText;
-            scope.cancel = editModeRenderer.close;
+            scope.cancel = function () {
+                editModeRenderer.close({id: rendererId})
+            };
 
             scope.submit = function () {
                 reset();
@@ -804,7 +807,7 @@
             }
 
             function onSuccess() {
-                editModeRenderer.close({id: 'popup'});
+                editModeRenderer.close({id: rendererId});
             }
 
             function onError() {

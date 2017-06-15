@@ -1571,7 +1571,7 @@ describe('angularx', function () {
 
                 it('on cancel, close the renderer', function () {
                     scope.cancel();
-                    expect(editModeRendererMock.close).toHaveBeenCalled();
+                    expect(editModeRendererMock.close).toHaveBeenCalledWith({id: 'popup'});
                 });
 
                 describe('on submit', function () {
