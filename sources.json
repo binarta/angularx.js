@@ -10,6 +10,7 @@
   },
   "default": {
     "angularx": "bower_components/binarta.angularx/src/angularx.js",
-    "angularx-templates": "bower_components/binarta.angularx/src/angularx-tpls-bootstrap3.js"
+    "angularx-templates": "bower_components/binarta.angularx/src/angularx-tpls-bootstrap3.js",
+    "resize-sensor": "bower_components/css-element-queries/src/ResizeSensor.js"
   }
 }
