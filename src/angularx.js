@@ -725,7 +725,7 @@
 
         return function (element, duration) {
             var el = $document.find(element);
-            if (el) scrollTo(el.position().top, duration);
+            if (el) scrollTo(el.offset().top, duration);
         };
 
         function scrollTo(pos, duration) {
