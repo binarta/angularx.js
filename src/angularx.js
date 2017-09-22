@@ -28,7 +28,7 @@
         .controller('optionsMenuController', ['$scope', 'optionsMenuFactory', 'usecaseAdapterFactory', OptionsMenuController])
         .factory('predicatedBarrier', ['$q', '$timeout', 'binDateController', PredicatedBarrierFactory])
         .factory('binDebounce', ['$timeout', BinDebounceFactory])
-        .factory('binResizeSensor', BinResizeSensorFactory())
+        .factory('binResizeSensor', [BinResizeSensorFactory])
         .service('binLink', ['$rootScope', '$filter', 'editModeRenderer', BinLinkService])
         .run(['topicMessageDispatcher', EndOfPageListener]);
 
@@ -716,8 +716,8 @@
     }
 
     function BinResizeSensorFactory() {
-        return function () {
-            return ResizeSensor;
+        return ResizeSensor;
+    }
         };
     }
 
