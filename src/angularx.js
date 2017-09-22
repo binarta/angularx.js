@@ -29,6 +29,7 @@
         .factory('predicatedBarrier', ['$q', '$timeout', 'binDateController', PredicatedBarrierFactory])
         .factory('binDebounce', ['$timeout', BinDebounceFactory])
         .factory('binResizeSensor', [BinResizeSensorFactory])
+        .factory('binScrollTo', ['$document', BinScrollToFactory])
         .service('binLink', ['$rootScope', '$filter', 'editModeRenderer', BinLinkService])
         .run(['topicMessageDispatcher', EndOfPageListener]);
 
@@ -718,7 +719,18 @@
     function BinResizeSensorFactory() {
         return ResizeSensor;
     }
+
+    function BinScrollToFactory($document) {
+        var page = jQuery('body,html');
+
+        return function (element, duration) {
+            var el = $document.find(element);
+            if (el) scrollTo(el.position().top, duration);
         };
+
+        function scrollTo(pos, duration) {
+            page.animate({scrollTop: pos}, duration || 800);
+        }
     }
 
     function sanitizeUrlFilter($location) {
