@@ -11,6 +11,7 @@
         .directive('binClickOutside', ['$document', '$timeout', BinClickOutsideDirective])
         .directive('autofocus', ['$timeout', AutofocusDirective])
         .directive('ngClickConfirm', ['binModal', ngClickConfirmDirectiveFactory])
+        .component('binListInline', new BinListInlineComponent())
         .filter('binTruncate', BinTruncateFilter)
         .filter('binStripHtmlTags', BinStripHtmlTagsFilter)
         .filter('binEncodeUriComponent', ['$window', function ($window) {
@@ -413,6 +414,66 @@
                 }
             }
         }
+    }
+
+    function BinListInlineComponent() {
+        this.template = '<ul ng-transclude></ul>';
+
+        this.transclude = true;
+
+        this.controller = ['$element', 'topicRegistry', 'viewport', function ($element, topicRegistry, viewport) {
+            var $ctrl = this;
+            var lastItemClass = 'last-item';
+            var emptyItemClass = 'empty-item';
+            var list, listItems, editing;
+
+            $ctrl.$postLink = function () {
+                list = $element.find('ul');
+                listItems = list.children();
+                var listObserver;
+
+                if (window.MutationObserver) {
+                    listObserver = new MutationObserver(updateClasses);
+                    listObserver.observe(list[0], {childList: true, subtree: true});
+                } else {
+                    //Fallback for browsers that don't support mutation observers.
+                    list.on('DOMSubtreeModified', updateClasses);
+                    listObserver = {
+                        disconnect: function () {
+                            list.off('DOMSubtreeModified', updateClasses);
+                        }
+                    };
+                }
+
+                var viewportObserver = viewport.onChange(updateClasses);
+                topicRegistry.subscribe('edit.mode', editModeListener);
+
+                $ctrl.$onDestroy = function () {
+                    listObserver.disconnect();
+                    viewportObserver();
+                    topicRegistry.unsubscribe('edit.mode', editModeListener);
+                };
+            };
+
+            function updateClasses() {
+                var lastItem;
+                angular.forEach(listItems, function (it) {
+                    var item = angular.element(it);
+                    if (!it.innerText && !editing) item.addClass(emptyItemClass);
+                    else item.removeClass(emptyItemClass);
+                    if (lastItem) {
+                        if (lastItem.offset().top !== item.offset().top) lastItem.addClass(lastItemClass);
+                        else lastItem.removeClass(lastItemClass);
+                    }
+                    lastItem = item;
+                });
+            }
+
+            function editModeListener(e) {
+                editing = e;
+                updateClasses();
+            }
+        }];
     }
 
     function OpenCloseMenuFSM() {

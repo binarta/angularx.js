@@ -1,0 +1,42 @@
+bin-list-inline {
+  display: inline-block;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    position: relative;
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    &:after {
+      content: '|';
+      position: absolute;
+      top: 0;
+      right: -1px;
+      font-weight: normal;
+    }
+
+    &.last-item, &.empty-item, &:last-child {
+      &:after {
+        display: none;
+      }
+    }
+
+    &.empty-item {
+      padding: 0;
+    }
+
+    > * {
+      vertical-align: top;
+    }
+  }
+
+  a {
+    color: inherit;
+  }
+}
