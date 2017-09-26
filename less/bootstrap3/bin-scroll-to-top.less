@@ -1,0 +1,39 @@
+bin-scroll-to-top {
+  button {
+    contain: content;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    border: none;
+    background: @brand-primary;
+    color: #fff;
+    opacity: 0.15;
+    font-size: 30px;
+    line-height: 30px;
+    height: 40px;
+    width: 40px;
+    padding: 0;
+    border-radius: @border-radius-base;
+    outline: none;
+    backface-visibility: hidden;
+  }
+
+  @media (min-width: @screen-sm-min) {
+    button {
+      height: 60px;
+      width: 60px;
+    }
+  }
+}
+
+body:not(.mobile):not(.tablet) {
+  bin-scroll-to-top {
+    button {
+      transition: opacity ease 250ms;
+
+      &:hover {
+        opacity: 0.4;
+      }
+    }
+  }
+}

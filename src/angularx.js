@@ -12,6 +12,7 @@
         .directive('autofocus', ['$timeout', AutofocusDirective])
         .directive('ngClickConfirm', ['binModal', ngClickConfirmDirectiveFactory])
         .component('binListInline', new BinListInlineComponent())
+        .component('binScrollToTop', new BinScrollToTopComponent())
         .filter('binTruncate', BinTruncateFilter)
         .filter('binStripHtmlTags', BinStripHtmlTagsFilter)
         .filter('binEncodeUriComponent', ['$window', function ($window) {
@@ -472,6 +473,66 @@
             function editModeListener(e) {
                 editing = e;
                 updateClasses();
+            }
+        }];
+    }
+
+    function BinScrollToTopComponent() {
+        this.template = '<button type="button" ng-click="$ctrl.scroll()"><i class="fa fa-angle-up"></i></button>';
+
+        this.bindings = {
+            to: '@'
+        };
+
+        this.controller = ['$timeout', '$document', '$element', 'binScrollTo', function ($timeout, $document, $element, binScrollTo) {
+            var $ctrl = this;
+            var scrollToElementName;
+            var scrollToElement;
+            var threshold = 2000;
+            var isHidden, isVisible;
+
+            $ctrl.$onInit = function () {
+                scrollToElementName = $ctrl.to || 'body';
+                scrollToElement = $document.find(scrollToElementName);
+                $element.hide();
+                isHidden = true;
+
+                $document.on('scroll', onScroll);
+
+                $ctrl.scroll = function () {
+                    binScrollTo(scrollToElementName);
+                };
+            };
+
+            function onScroll() {
+                requestAnimationFrame(function () {
+                    isBelowThreshold() ? show() : hide();
+                });
+            }
+
+            function requestAnimationFrame(cb) {
+                if (window.requestAnimationFrame) window.requestAnimationFrame(cb);
+                else $timeout(cb, 20);
+            }
+
+            function isBelowThreshold() {
+                if (!scrollToElement[0]) return false;
+                var rect = scrollToElement[0].getBoundingClientRect();
+                return rect.top < -threshold;
+            }
+
+            function show() {
+                if (isHidden) {
+                    $element.fadeIn();
+                    isVisible = true;
+                }
+            }
+
+            function hide() {
+                if (isVisible) {
+                    $element.fadeOut();
+                    isHidden = true;
+                }
             }
         }];
     }
