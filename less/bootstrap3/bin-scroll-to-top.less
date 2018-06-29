@@ -3,11 +3,11 @@ bin-scroll-to-top {
     contain: content;
     position: fixed;
     right: 20px;
-    top: 20px;
+    bottom: 70px;
     border: none;
     background: @brand-primary;
     color: #fff;
-    opacity: 0.15;
+    opacity: 0.35;
     font-size: 30px;
     line-height: 30px;
     height: 40px;
@@ -22,6 +22,7 @@ bin-scroll-to-top {
     button {
       height: 60px;
       width: 60px;
+      bottom: 20px;
     }
   }
 }
@@ -32,8 +33,16 @@ body:not(.mobile):not(.tablet) {
       transition: opacity ease 250ms;
 
       &:hover {
-        opacity: 0.4;
+        opacity: 0.6;
       }
+    }
+  }
+}
+
+body.bin-menu {
+  bin-scroll-to-top {
+    button {
+      display: none;
     }
   }
 }
