@@ -401,7 +401,9 @@
                                 executeClickHandler();
                                 modal.close();
                             },
-                            no: modal.close
+                            no: function() {
+                                modal.close()
+                            },
                         }
                     });
                 }
