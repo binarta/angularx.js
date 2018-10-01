@@ -1485,7 +1485,7 @@ describe('angularx', function () {
         });
     });
 
-    describe('binSanitizeUrl filter', function () {
+    fdescribe('binSanitizeUrl filter', function () {
         var filter;
 
         beforeEach(inject(function ($location, binSanitizeUrlFilter) {
@@ -1494,8 +1494,10 @@ describe('angularx', function () {
         }));
 
         [
-            {actual: 'test', expected: 'http://test'},
-            {actual: '#!/test', expected: 'http://test'},
+            {actual: 'test', expected: 'test'},
+            {actual: '/test', expected: 'test'},
+            {actual: '#!/test', expected: 'test'},
+            {actual: '/#!/test', expected: 'test'},
             {actual: 'www.test.com', expected:'http://www.test.com'},
             {actual: 'www.test.com/#!/test', expected: 'http://www.test.com/test'},
             {actual: 'test.com/#!/test', expected: 'http://test.com/test'},
@@ -1504,15 +1506,13 @@ describe('angularx', function () {
             {actual: 'http://test.com', expected: 'http://test.com'},
             {actual: 'https://test.com', expected: 'https://test.com'},
             {actual: 'ftp://test.com', expected: 'ftp://test.com'},
-            {actual: 'server', expected: '/'},
-            {actual: 'http://server', expected: '/'},
-            {actual: 'http://server/', expected: '/'},
-            {actual: 'server/test', expected: '/test'},
-            {actual: 'http://server/test', expected: '/test'},
-            {actual: 'http://server/test/', expected: '/test/'},
-            {actual: 'http://server/#!/test', expected: '/test'},
-            {actual: 'http://server/#!/test/with/longer/path', expected: '/test/with/longer/path'},
-            {actual: '/#!/test', expected: '/test'}
+            // testing relative paths
+            {actual: 'http://server', expected: ''},
+            {actual: 'http://server/', expected: ''},
+            {actual: 'http://server/test', expected: 'test'},
+            {actual: 'http://server/test/', expected: 'test/'},
+            {actual: 'http://server/#!/test', expected: 'test'},
+            {actual: 'http://server/#!/test/with/longer/path', expected: 'test/with/longer/path'}
         ].forEach(function (link) {
             it('when link is "' + link.actual + '", expect "' + link.expected + '"', function () {
                 expect(filter(link.actual)).toEqual(link.expected);

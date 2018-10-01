@@ -863,34 +863,39 @@
         };
 
         function sanitize(url) {
-            if (url.substr(0,1) !== '/') {
-                if (!hasProtocol(url)) url = 'http://' + url;
-                var parts = getParts(url);
-                if (isRelative(parts.domain)) url = parts.path;
-            }
-            return stripHashbang(url);
+            url = stripHashbang(url);
+            url = stripTrailingSlash(url);
+            if (isUrlWithoutProtocol(url)) url = "http://" + url;
+            if (isRelative(url)) url = convertToRelative(url);
+            return url;
         }
 
-        function isRelative(domain) {
-            if (angular.isUndefined(domain)) return true;
-            return $location.absUrl().substr(0, domain.length) === domain;
+        function stripHashbang(url) {
+            return url.replace(/[\/]?#!/, '');
+        }
+        
+        function stripTrailingSlash(url) {
+            if (url.substr(0, 1) === '/') url = url.substr(1);
+            return url;
         }
 
-        function hasProtocol(link) {
-            return link.search(/^[a-zA-Z]+:\/\//) != -1;
+        function isRelative(url) {
+            var current = getCurrentDomain();
+            return url.substr(0, current.length) === current;
         }
 
-        function getParts(link) {
-            var parts = link.match(/^(([a-zA-Z]+:\/\/)[^\/]+)(.*)$/) || [];
-            return {
-                protocol: parts[2],
-                domain: parts[1],
-                path: parts[3] || '/'
-            }
+        function convertToRelative(url) {
+            var current = getCurrentDomain();
+            return url.substr(current.length + 1);
         }
 
-        function stripHashbang(link) {
-            return link.replace(/[\/]?#!/, '');
+        function isUrlWithoutProtocol(url) {
+            var regex = /^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?/;
+            return regex.test(url);
+        }
+
+        function getCurrentDomain() {
+            return $location.protocol() + '://' + $location.host();
         }
     }
 
