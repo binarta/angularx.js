@@ -1485,7 +1485,7 @@ describe('angularx', function () {
         });
     });
 
-    fdescribe('binSanitizeUrl filter', function () {
+    describe('binSanitizeUrl filter', function () {
         var filter;
 
         beforeEach(inject(function ($location, binSanitizeUrlFilter) {
@@ -1587,7 +1587,7 @@ describe('angularx', function () {
 
                     it('onSubmit callback is executed', function () {
                         expect(onSubmitSpy).toHaveBeenCalledWith({
-                            href: '/',
+                            href: 'http://',
                             text: '',
                             target: '_blank',
                             success: jasmine.any(Function),
