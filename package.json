@@ -8,5 +8,11 @@
     "gulp": "^3.8.10",
     "gulp-angular-templatecache": "^1.5.0",
     "gulp-minify-html": "^0.1.8"
+  },
+  "scripts": {
+    "templates": "gulp",
+    "test": "karma start config/karma10.conf.js --single-run",
+    "test:watch": "karma start config/karma10.conf.js",
+    "build": "npm run test && npm run templates"
   }
 }

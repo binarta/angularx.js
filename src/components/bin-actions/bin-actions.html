@@ -1,0 +1,6 @@
+<div class="bin-dropdown" ng-class="{open: $ctrl.state.name == 'opened'}" ng-show="$ctrl.hasMainActions()" bin-click-outside="$ctrl.close()">
+    <button type="button" class="bin-btn bin-btn-down bin-btn-sm bin-btn-primary" ng-class="{working: $ctrl.working}" ng-click="$ctrl.toggle()">
+        <span i18n code="{{::$ctrl.buttonCode}}" read-only ng-bind="var" ng-if="$ctrl.buttonCode"></span>
+    </button>
+    <div class="bin-dropdown-menu" ng-transclude="group"></div>
+</div>
