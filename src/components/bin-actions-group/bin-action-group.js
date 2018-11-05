@@ -1,20 +1,20 @@
 (function(angular) {
-    angular.module('angularx').component('binActionsGroup', new BinActionsGroup());
+    angular.module('angularx').component('binActionGroup', new BinActionGroup());
 
-    function BinActionsGroup() {
+    function BinActionGroup() {
         this.template = '<div ng-show="$ctrl.visible" ng-transclude></div>';
         this.bindings = {
-            for: '@binActionsGroupFor',
-            buttonI18nCode: '@binActionsGroupButtonI18nCode'
+            for: '@?binActionGroupFor',
+            buttonI18nCode: '@?binActionGroupButtonI18nCode'
         };
         this.require = {
             binActions: '^^binActions'
         };
         this.transclude = true;
-        this.controller = BinActionsGroupController;
+        this.controller = BinActionGroupController;
     }
     
-    function BinActionsGroupController() {
+    function BinActionGroupController() {
         var $ctrl = this;
 
         $ctrl.$onInit = function () {

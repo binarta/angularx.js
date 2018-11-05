@@ -1,4 +1,4 @@
-describe('<bin-actions-group-action></bin-actions-group-action>', function () {
+describe('<bin-action></bin-action>', function () {
     var $ctrl, binActions, binActionsGroup;
 
     beforeEach(module('angularx'));
@@ -16,7 +16,7 @@ describe('<bin-actions-group-action></bin-actions-group-action>', function () {
         };
         this.bindings = {};
         this.$onInit = function() {
-            this.$ctrl = $componentController('binActionsGroupAction', null, this.bindings);
+            this.$ctrl = $componentController('binAction', null, this.bindings);
             this.$ctrl.binActions = this.binActions;
             this.$ctrl.binActionsGroup = this.binActionsGroup;
             this.$ctrl.$onInit();
@@ -63,13 +63,11 @@ describe('<bin-actions-group-action></bin-actions-group-action>', function () {
         })
     });
     
-    describe('with type action', function() {
-        var actionSpy;
-
+    describe('with type expression', function() {
         beforeEach(function() {
-            this.actionSpy = jasmine.createSpy('action');
-            this.bindings.action = this.actionSpy;
-            this.bindings.type = 'action';
+            this.expressionSpy = jasmine.createSpy('expression');
+            this.bindings.expression = this.expressionSpy;
+            this.bindings.type = 'expression';
             this.$onInit();
         });
 
@@ -83,7 +81,7 @@ describe('<bin-actions-group-action></bin-actions-group-action>', function () {
             });
 
             it('is executed', function () {
-                expect(this.actionSpy).toHaveBeenCalled();
+                expect(this.expressionSpy).toHaveBeenCalled();
             });
 
             describe('and action returns an object with a finally callback', function () {
@@ -93,12 +91,12 @@ describe('<bin-actions-group-action></bin-actions-group-action>', function () {
                     deferred = {
                         finally: jasmine.createSpy()
                     };
-                    this.actionSpy.and.returnValue(deferred);
+                    this.expressionSpy.and.returnValue(deferred);
                     this.$ctrl.execute();
                 });
 
                 it('is executed', function () {
-                    expect(this.actionSpy).toHaveBeenCalled();
+                    expect(this.expressionSpy).toHaveBeenCalled();
                 });
 
                 it('is working', function () {
@@ -130,7 +128,7 @@ describe('<bin-actions-group-action></bin-actions-group-action>', function () {
                 });
 
                 it('is not executed', function () {
-                    expect(this.actionSpy).not.toHaveBeenCalled();
+                    expect(this.expressionSpy).not.toHaveBeenCalled();
                 });
             });
         });
@@ -146,7 +144,7 @@ describe('<bin-actions-group-action></bin-actions-group-action>', function () {
                 });
 
                 it('is not executed', function () {
-                    expect(this.actionSpy).not.toHaveBeenCalled();
+                    expect(this.expressionSpy).not.toHaveBeenCalled();
                 });
             });
         });

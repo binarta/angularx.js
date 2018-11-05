@@ -4,7 +4,7 @@
     function BinActionsComponent() {
         this.templateUrl = 'bin-actions.html';
         this.transclude = {
-            'group': 'binActionsGroup'
+            'group': 'binActionGroup'
         };
         this.controller = BinActionsController;
     }

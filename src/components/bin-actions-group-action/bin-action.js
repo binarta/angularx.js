@@ -1,30 +1,30 @@
 (function (angular) {
-    var NAME = 'binActionsGroupAction';
+    var NAME = 'binAction';
 
     angular.module('angularx')
-        .component(NAME, new BinActionsGroupActionComponent());
+        .component(NAME, new BinActionComponent());
 
-    function BinActionsGroupActionComponent() {
-        this.templateUrl = 'bin-actions-group-action.html';
+    function BinActionComponent() {
+        this.templateUrl = 'bin-action.html';
         this.bindings = {
-            danger: '@' + NAME + 'Danger',
-            iconClass: '@' + NAME + 'IconClass',
-            disabled: '<' + NAME + 'Disabled',
-            i18nCode: '@' + NAME + 'I18nCode',
+            danger: '@?' + NAME + 'Danger',
+            iconClass: '@?' + NAME + 'IconClass',
+            disabled: '<?' + NAME + 'Disabled',
+            i18nCode: '@?' + NAME + 'I18nCode',
             type: '@' + NAME + 'Type',
-            action: '&' + NAME + 'Action',
-            selector: '@' + NAME + 'Selector',
-            link: '<' + NAME + 'Link'
+            expression: '&?' + NAME + 'Expression',
+            selector: '@?' + NAME + 'Selector',
+            link: '<?' + NAME + 'Link'
         };
         this.require = {
             binActions: '^^binActions',
-            binActionsGroup: '^^binActionsGroup'
+            binActionsGroup: '^^binActionGroup'
         };
         this.transclude = true;
-        this.controller = ['i18nLocation', BinActionsGroupActionController];
+        this.controller = ['i18nLocation', BinActionController];
     }
 
-    function BinActionsGroupActionController(i18nLocation) {
+    function BinActionController(i18nLocation) {
         var $ctrl = this;
         var decorators = {
             'link': function() {
@@ -32,10 +32,10 @@
                     i18nLocation.path(this.link);
                 }
             }.bind(this),
-            'action': function () {
+            'expression': function () {
                 this.execute = function() {
                     if (!$ctrl.working && !$ctrl.disabled) {
-                        var result = $ctrl.action();
+                        var result = $ctrl.expression();
                         if (result && result.finally) {
                             startWorking();
                             result.finally(stopWorking);

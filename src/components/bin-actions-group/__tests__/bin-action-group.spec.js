@@ -1,4 +1,4 @@
-describe('binEditActions component', function () {
+describe('<bin-action-group></bin-action-group>', function () {
     beforeEach(module('angularx'));
     beforeEach(inject(function ($componentController) {
         this.binActions = {
@@ -9,7 +9,7 @@ describe('binEditActions component', function () {
         };
         this.bindings = {};
         this.$onInit = function() {
-            this.$ctrl = $componentController('binActionsGroup', null, this.bindings);
+            this.$ctrl = $componentController('binActionGroup', null, this.bindings);
             this.$ctrl.binActions = this.binActions;
             this.$ctrl.$onInit();
         }
