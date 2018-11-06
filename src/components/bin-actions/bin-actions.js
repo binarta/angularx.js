@@ -6,21 +6,31 @@
         this.transclude = {
             'group': 'binActionGroup'
         };
-        this.controller = BinActionsController;
+        this.controller = ['$scope', BinActionsController];
     }
 
-    function BinActionsController() {
+    /**
+     * This component's controller is an orchestrator to which child components subscribe.
+     *
+     * Special note: Currently we expose the opened/closed events through AngularJS' $scope events mechanism. While
+     * component bindings are a preferred way of doing this because this component is currently used in a transclusion
+     * context we cannot always use bindings. This is the only way (that I could think of) of exposing the state to parent components.
+     *
+     * @param $scope
+     * @constructor
+     */
+    function BinActionsController($scope) {
+        var ON_OPENED_EVENT = 'bin.actions.opened';
+        var ON_CLOSED_EVENT = 'bin.actions.closed';
+
         var $ctrl = this;
         var actionsListeners = [];
         var mainActions = 0;
         var states = {
-            hidden: function () {
-                this.name = 'hidden';
-                this.close = function () {}
-            },
             closed: function (fsm) {
                 this.name = 'closed';
                 $ctrl.showActionsFor();
+                $scope.$emit(ON_CLOSED_EVENT);
                 this.toggle = function () {
                     fsm.state = new states.opened(fsm);
                 };
@@ -28,6 +38,7 @@
             },
             opened: function (fsm) {
                 this.name = 'opened';
+                $scope.$emit(ON_OPENED_EVENT);
                 this.toggle = function () {
                     fsm.state = new states.closed(fsm);
                 };

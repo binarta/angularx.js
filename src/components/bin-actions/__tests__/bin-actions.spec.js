@@ -1,22 +1,33 @@
 describe('<bin-actions></bin-actions>', function () {
     beforeEach(module('angularx'));
-    beforeEach(inject(function ($componentController) {
+    beforeEach(inject(function ($componentController, $rootScope) {
+        var self = this;
+        this.events = '';
+        $rootScope.$on('bin.actions.opened', function() {
+            self.events += 'O';
+        });
+        $rootScope.$on('bin.actions.closed', function() {
+            self.events += 'C';
+        });
         this.$ctrl = $componentController('binActions');
         this.$ctrl.$onInit();
     }));
 
     it('component is in closed state', function () {
         expect(this.$ctrl.state.name).toEqual('closed');
+        expect(this.events).toEqual('C');
     });
 
     it('on toggle menu', function () {
         this.$ctrl.toggle();
 
         expect(this.$ctrl.state.name).toEqual('opened');
+        expect(this.events).toEqual('CO');
 
         this.$ctrl.toggle();
 
         expect(this.$ctrl.state.name).toEqual('closed');
+        expect(this.events).toEqual('COC');
     });
 
     it('on close', function () {
@@ -27,6 +38,7 @@ describe('<bin-actions></bin-actions>', function () {
         this.$ctrl.close();
 
         expect(this.$ctrl.state.name).toEqual('closed');
+        expect(this.events).toEqual('COC');
     });
 
     describe('when state is opened', function () {
