@@ -18,6 +18,7 @@
     "binarta.viewport.angular": "0.*.*",
     "binarta.bootstrap.ex.angular": "1.*.*",
     "binarta.toggle.edit.mode.angular": "1.*.*",
+    "binarta.style.guide": "0.*.*",
     "css-element-queries": "0.4.0"
   },
   "devDependencies": {
